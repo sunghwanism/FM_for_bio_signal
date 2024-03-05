@@ -29,7 +29,7 @@ from source.preprocessing.time.time_based_feature_service import TimeBasedFeatur
 
 def get_all_files():
     # project_root = str(utils.get_project_root())
-    project_root = "/volumes/990pro_2TB/UofT/Intro_DL/project/data/mesa"
+    project_root = "/NFS/mesa"
     return glob.glob(project_root + "/polysomnography/edfs/*edf")
 
 

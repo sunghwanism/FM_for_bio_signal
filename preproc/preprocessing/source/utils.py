@@ -16,7 +16,7 @@ from source.analysis.setup.feature_type import FeatureType
 
 
 def get_project_root() -> Path:
-    root = '/volumes/990Pro_2TB/UofT/Intro_DL/project/data/'
+    root = '/NFS/'
     return root # Path(__file__).parent.parent
 
 
