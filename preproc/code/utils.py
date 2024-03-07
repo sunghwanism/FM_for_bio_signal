@@ -25,7 +25,7 @@ def load_data(subject, PATH, load_type=["ECG","HertRate","Active", "psg"]):
     
     result = {"subject":subject,
               "ECG":None,
-              "HertRate":None,
+              "HeartRate":None,
               "Active":None,
               "psg":None}
     
@@ -43,8 +43,8 @@ def load_data(subject, PATH, load_type=["ECG","HertRate","Active", "psg"]):
     if "HertRate" in load_type:
         
         heart_rate = base_df["heart_rate"].to_numpy()
-        result["HertRate"] = heart_rate
-        print("Finished loading Heart Rate data", result["HertRate"].shape)
+        result["HeartRate"] = heart_rate
+        print("Finished loading Heart Rate data", result["HeartRate"].shape)
         
     if "Active" in load_type:
 
