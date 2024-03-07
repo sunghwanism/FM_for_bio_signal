@@ -48,7 +48,7 @@ def load_data(subject, PATH, load_type=["ECG","HertRate","Active", "psg"]):
         
     if "Active" in load_type:
 
-        active = base_df["active_count"].to_numpy()
+        active = base_df["activity_count"].to_numpy()
         result["Active"] = active
         print("Finished loading Active data", result["Active"].shape)
         
