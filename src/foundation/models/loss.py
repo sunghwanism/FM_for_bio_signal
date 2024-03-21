@@ -136,7 +136,7 @@ class FOCALLoss(nn.Module):
 
         return ranking_loss
 
-    def forward(self, mod_features1, mod_features2, classifer_loss, index=None):
+    def forward(self, mod_features1, mod_features2, index=None):
         """
         loss = shared contrastive loss + private contrastive loss + orthogonality loss + temporal correlation loss
         Procedure:
@@ -212,7 +212,7 @@ class FOCALLoss(nn.Module):
             shared_contrastive_loss * self.config["shared_contrastive_loss_weight"]
             + private_contrastive_loss * self.config["private_contrastive_loss_weight"]
             + orthogonality_loss * self.config["orthogonal_loss_weight"]
-            + classifer_loss
+            + temporal_consistency_loss * self.config["rank_loss_weight"]
         )
 
         return loss

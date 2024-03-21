@@ -281,5 +281,6 @@ class Mixup:
             lam, index = self._mix_batch_random(x, args)
         else:
             lam, index = self._mix_batch(x, args)
+        lam, index = self._mix_pair(x, args)
         target = mixup_target(target, self.num_classes, lam, self.label_smoothing, device=target.device, index=index)
         return x, target
