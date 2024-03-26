@@ -4,7 +4,6 @@ import torch.nn as nn
 from general_utils.tensor_utils import extract_non_diagonal_matrix
 from models.FOCALModules import split_features
 
-
 class FOCALLoss(nn.Module):
     def __init__(self, args):
         super(FOCALLoss, self).__init__()
@@ -15,7 +14,7 @@ class FOCALLoss(nn.Module):
         self.similarity_f = nn.CosineSimilarity(dim=-1)
         self.orthonal_loss_f = nn.CosineEmbeddingLoss(reduction="mean")
         self.inter_ranking_loss_f = nn.MarginRankingLoss(margin=self.config["inter_rank_margin"], reduction="mean")
-
+    
         # decide the temperature
         if isinstance(self.config["temperature"], dict):
             self.temperature = self.config["temperature"][args.model]
@@ -135,10 +134,11 @@ class FOCALLoss(nn.Module):
         )
 
         return ranking_loss
+    
 
     def forward(self, mod_features1, mod_features2, index=None):
         """
-        loss = shared contrastive loss + private contrastive loss + orthogonality loss + temporal correlation loss
+        loss = shared contrastive loss + private contrastive loss + orthogonality loss + temporal correlation loss 
         Procedure:
             (1) Split the features into (batch, subsequence, shared/private).
             (2) For each batch, compute the shared contrastive loss between modalities.
@@ -147,7 +147,7 @@ class FOCALLoss(nn.Module):
             (5) For each subsequence, compute the temporal correlation loss.
         """
         seq_len = self.args.dataset_config["seq_len"]
-
+        
         # Step 0: Reshape features
         reshaped_mod_features1, reshaped_mod_features2 = {}, {}
         for mod in self.modalities:
@@ -206,7 +206,7 @@ class FOCALLoss(nn.Module):
                     orthogonality_loss += self.forward_orthogonality_loss(
                         split_mod_features[mod]["private"],
                         split_mod_features[mod2]["private"],
-                    )
+                    )    
 
         loss = (
             shared_contrastive_loss * self.config["shared_contrastive_loss_weight"]
@@ -214,5 +214,6 @@ class FOCALLoss(nn.Module):
             + orthogonality_loss * self.config["orthogonal_loss_weight"]
             + temporal_consistency_loss * self.config["rank_loss_weight"]
         )
-
+        
+        
         return loss
