@@ -1,6 +1,7 @@
 
 import os
 import numpy as np
+from tqdm import tqdm
 
 
 def process_hr_data(file_path, block_size):
@@ -39,7 +40,7 @@ def main():
     data_directory = '/NFS/Users/moonsh/data/mesa/preproc/final'
     save_dir = '/NFS/Users/moonsh/data/mesa/preproc/pair'
 
-    for filename in os.listdir(data_directory):
+    for filename in tqdm(os.listdir(data_directory)):
         if filename.endswith('.csv') and 'ecg' not in filename:
             file_path = os.path.join(data_directory, filename)
             data_blocks, status_blocks, label_blocks = process_hr_data(file_path, block_size=30)

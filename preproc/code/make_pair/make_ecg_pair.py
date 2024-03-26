@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from tqdm import tqdm
 
 def process_ecg_data(file_path, block_size):
     ecg_data_blocks = []
@@ -32,7 +33,7 @@ def main():
     
     ecg_data_blocks = []
 
-    for filename in os.listdir(data_directory):
+    for filename in tqdm(os.listdir(data_directory)):
         if filename.endswith('.csv') and 'ecg' in filename:
             file_path = os.path.join(data_directory, filename)
             data_blocks = process_ecg_data(file_path, block_size=7680)
