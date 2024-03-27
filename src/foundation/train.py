@@ -6,9 +6,10 @@ import args
 import argparse
 import logging
 
-# import torch
+import torch
 from models.AdversarialModel import AdversarialModel
 from models.FOCALModules import FOCAL
+from data.Dataset import MESAPairDataset
 import datetime
 
 
@@ -157,13 +158,12 @@ def main():
                                           f'focal_subj_mesa_{time}.log'),
                     filemode='a')
     
-    train_dataset = None
+    train_dataset = MESAPairDataset()
     val_dataset = None
     
     # train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.trainer_config['batch_size'], shuffle=True)
     # val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.trainer_config['batch_size'], shuffle=False)
     # print("Successfully Loaded Data")
-    
     
 
     # print("Start Training SA Focal Model")
