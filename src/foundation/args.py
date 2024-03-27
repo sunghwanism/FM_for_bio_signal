@@ -19,12 +19,12 @@ base_config = {'train_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair',
                'val_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair',
                'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
                'modalities': ['ecg', 'hr'],
-                'label_key': 'stage',
-                'subject_key': 'subject_idx',
-                'train_num_subjects': 100,
-                'test_num_subjects': 50,
-                'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
-                'log_save_dir': os.path.join(root_dir, 'logs'),
+               'label_key': 'stage',
+               'subject_key': 'subject_idx',
+               'train_num_subjects': 100,
+               'test_num_subjects': 50,
+               'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+               'log_save_dir': os.path.join(root_dir, 'logs'),
 }
 
 ################################################################################
