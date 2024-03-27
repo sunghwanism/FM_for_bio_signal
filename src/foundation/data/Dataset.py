@@ -16,19 +16,18 @@ class MESAPairDataset(Dataset):
         
         for i, datafile in enumerate(self.file_path):
             data = np.load(os.path.join(self.root_dir, datafile)) # numpy file on each sample (segments)
-            print(data.shape)
 
             if i == 0:
                 self.modality_1 = data[self.modalities[0]]
                 self.modality_2 = data[self.modalities[1]]
-                self.subject_id = data[self.subject_idx]
-                self.sleep_stage = data[self.stage]
+                self.subject_id = [data[self.subject_idx]]
+                self.sleep_stage = [data[self.stage]]
 
             else:
                 self.modality_1 = np.concatenate([self.modality_1, data[self.modalities[0]]])
                 self.modality_2 = np.concatenate([self.modality_2, data[self.modalities[1]]])
-                self.subject_id = np.concatenate([self.subject_id, data[self.subject_idx]])
-                self.sleep_stage = np.concatenate([self.sleep_stage, data[self.stage]])
+                self.subject_id = self.subject_id.append(data[self.subject_idx])
+                self.sleep_stage = self.sleep_stage.append(data[self.stage])
                 
     def __len__(self):
 
