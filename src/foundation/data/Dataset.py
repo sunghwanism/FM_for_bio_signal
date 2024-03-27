@@ -2,6 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 class MESAPairDataset(Dataset):
@@ -14,7 +15,7 @@ class MESAPairDataset(Dataset):
         self.stage = stage
         
         
-        for i, datafile in enumerate(self.files):
+        for i, datafile in enumerate(tqdm(self.files)):
             data = np.load(os.path.join(self.root_dir, datafile)) # numpy file on each sample (segments)
 
             if i == 0:
