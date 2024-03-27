@@ -13,7 +13,6 @@ class FOCALLoss(nn.Module):
         self.criterion = nn.CrossEntropyLoss(reduction="mean")
         self.similarity_f = nn.CosineSimilarity(dim=-1)
         self.orthonal_loss_f = nn.CosineEmbeddingLoss(reduction="mean")
-        self.inter_ranking_loss_f = nn.MarginRankingLoss(margin=self.config["inter_rank_margin"], reduction="mean")
     
         # decide the temperature
         if isinstance(self.config["temperature"], dict):
@@ -24,7 +23,7 @@ class FOCALLoss(nn.Module):
     def mask_correlated_samples(self, seq_len, batch_size, temporal=False):
         """
         Return a mask where the positive sample locations are 0, negative sample locations are 1.
-        """
+        """ㄴ
         if temporal:
             """Extract comparison between sequences, output: [B * Seq, B * Seq]"""
             mask = torch.ones([batch_size, batch_size], dtype=bool).to(self.args.device)
@@ -104,39 +103,11 @@ class FOCALLoss(nn.Module):
 
         return orthogonal_loss
 
-    def forward_temporal_inter_ranking_loss(self, embeddings):
-        """
-        Enforce temporally close samples to be closer than temporally distant samples.
-        embeddings: [batch_size, seq_len, dim]
-        """
-        batch_size, seq_len, dim = embeddings.shape
-        in_embeddings = embeddings.reshape(batch_size * seq_len, dim)
-
-        # calculate the Euclidean distance between any pairs of samples, [batch * seq, batch * seq]
-        distance = torch.cdist(in_embeddings, in_embeddings, p=2)
-        distance = distance.reshape(batch_size, seq_len, batch_size, seq_len)
-        distance = distance.permute(0, 2, 1, 3)  # [b, b, seq, seq]
-
-        # sequence level distance, [batch, batch]
-        mask = torch.ones(batch_size * seq_len, batch_size * seq_len).to(self.args.device).fill_diagonal_(0)
-        mask = mask.reshape(batch_size, seq_len, batch_size, seq_len).permute(0, 2, 1, 3)  # [b, b, seq, seq]
-        distance = (distance * mask).sum(dim=[2, 3]) / mask.sum(dim=[2, 3])
-
-        # in-sequence distance should be lower than inter-sequence distance
-        avg_intra_seq_dist = torch.diagonal(distance, 0, dim1=0, dim2=1).repeat_interleave(batch_size - 1)
-        avg_inter_seq_dist = extract_non_diagonal_matrix(distance).flatten()
-
-        # target: x1 < x2, therefore y = -1
-        ranking_loss = self.inter_ranking_loss_f(
-            avg_intra_seq_dist,
-            avg_inter_seq_dist,
-            -torch.ones_like(avg_intra_seq_dist).to(self.args.device),
-        )
-
-        return ranking_loss
-    
-
-    def forward(self, mod_features1, mod_features2, index=None):
+    #####################################################################################
+    # Adding subject_invaraince_loss in forward function
+    # def forward(self, mod_features1, mod_features2, index=None):
+    def forward(self, mod_features1, mod_features2, subject_invariance_loss):
+    #####################################################################################
         """
         loss = shared contrastive loss + private contrastive loss + orthogonality loss + temporal correlation loss 
         Procedure:
@@ -184,14 +155,8 @@ class FOCALLoss(nn.Module):
                 split_mod_features1[mod]["private"],
                 split_mod_features2[mod]["private"],
             )
-
-        # Step 4: temporal consistency loss
-        temporal_consistency_loss = 0
-        for mod_features in [reshaped_mod_features1, reshaped_mod_features2]:
-            for mod in self.modalities:
-                temporal_consistency_loss += self.forward_temporal_inter_ranking_loss(mod_features[mod])
-
-        # Step 5: orthogonality loss
+            
+        # Step 4: orthogonality loss
         orthogonality_loss = 0
         for split_mod_features in [split_mod_features1, split_mod_features2]:
             for i, mod in enumerate(self.modalities):
@@ -212,8 +177,11 @@ class FOCALLoss(nn.Module):
             shared_contrastive_loss * self.config["shared_contrastive_loss_weight"]
             + private_contrastive_loss * self.config["private_contrastive_loss_weight"]
             + orthogonality_loss * self.config["orthogonal_loss_weight"]
-            + temporal_consistency_loss * self.config["rank_loss_weight"]
         )
         
+        #####################################################################################
+        # Adding subject_invariance_loss
+        loss += loss + subject_invariance_loss
+        #####################################################################################
         
         return loss
