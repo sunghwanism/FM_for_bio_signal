@@ -169,17 +169,17 @@ def main():
     
     print("Successfully Loaded Train Data")
 
-    val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
-                                    modalities=args.base_config['modalities'],
-                                    subject_idx=args.base_config['subject_key'],
-                                    stage=args.base_config['label_key'])
+    # val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
+    #                                 modalities=args.base_config['modalities'],
+    #                                 subject_idx=args.base_config['subject_key'],
+    #                                 stage=args.base_config['label_key'])
     
-    val_loader = torch.utils.data.DataLoader(val_dataset,
-                                             batch_size=args.trainer_config['batch_size'],
-                                             shuffle=False,
-                                             num_workers=2)
+    # val_loader = torch.utils.data.DataLoader(val_dataset,
+    #                                          batch_size=args.trainer_config['batch_size'],
+    #                                          shuffle=False,
+    #                                          num_workers=2)
     
-    print("Successfully Loaded Validation Data")    
+    # print("Successfully Loaded Validation Data")    
 
     print("Loading the Focal Model")
     
