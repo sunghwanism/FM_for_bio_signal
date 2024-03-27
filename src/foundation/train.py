@@ -120,13 +120,12 @@ def main(args):
     
     print("Start Training SA Focal Model")
     
-    # AdversaryModel = 
-    # adversarial_loss_fn = SAAdersarialLoss()
-    # advs_optimizer = torch.optim.Adam(AdversaryModel.parameters(), lr=args.lr)
+    AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5)
+    advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
     
-    # FocalModel = 
-    # total_loss_fn = FOCALLoss()
-    # focal_optimizer = torch.optim.Adam(FocalModel.parameters(), lr=args.lr)
+    FOCAL_Model = FOCAL(args, backbone)
+    focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
+    focal_loss_fn = FOCALLoss(args)
         
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # output = train_SA_Focal()
