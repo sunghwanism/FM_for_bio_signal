@@ -158,25 +158,49 @@ def main():
                                           f'focal_subj_mesa_{time}.log'),
                     filemode='a')
     
-    train_dataset = MESAPairDataset()
-    val_dataset = None
+    train_dataset = MESAPairDataset(file_path=args.base_config['train_data_dir'],
+                                    modalities=args.base_config['modalities'],
+                                    subject_idx=args.base_config['subject_key'],
+                                    stage=args.base_config['label_key'])
+    train_loader = torch.utils.data.DataLoader(train_dataset, 
+                                               batch_size=args.trainer_config['batch_size'],
+                                               shuffle=True,
+                                               num_workers=4)
     
-    # train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.trainer_config['batch_size'], shuffle=True)
-    # val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.trainer_config['batch_size'], shuffle=False)
-    # print("Successfully Loaded Data")
-    
+    logging.info("Successfully Loaded Train Data")
 
-    # print("Start Training SA Focal Model")
+    val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
+                                    modalities=args.base_config['modalities'],
+                                    subject_idx=args.base_config['subject_key'],
+                                    stage=args.base_config['label_key'])
+    
+    val_loader = torch.utils.data.DataLoader(val_dataset,
+                                             batch_size=args.trainer_config['batch_size'],
+                                             shuffle=False,
+                                             num_workers=2)
+    
+    logging.info("Successfully Loaded Validation Data")    
+
+    logging.info("Loading the Focal Model")
     
     # AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5)
     # advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
+    logging.info("Complete Loading the Adversarial Model")
     
     # FOCAL_Model = FOCAL(args, backbone)
     # focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
     # focal_loss_fn = FOCALLoss(args)
-        
+    logging.info("Complete Loading the FOCAL Model")
+    
     # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # output = train_SA_Focal()
+    
+    logging.info("Start Training SA Focal Model")
+    
+    
+    # output = train_SA_Focal(train_loader, val_loader, FOCAL_Model, AdversarialModel,
+    #                         focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
+    
+    logging.info("Finished Training SA Focal Model")
     
     
 if __name__ == '__main__':
