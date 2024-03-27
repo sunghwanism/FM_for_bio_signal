@@ -41,8 +41,8 @@ class MESAPairDataset(Dataset):
 
         self.modality_1 = torch.FloatTensor(self.modality_1)
         self.modality_2 = torch.FloatTensor(self.modality_2)
-        self.subject_id = torch.long(self.subject_id)
-        self.sleep_stage = torch.long(self.sleep_stage)
+        self.subject_id = torch.Tensor(self.subject_id).long()
+        self.sleep_stage = torch.Tensor(self.sleep_stage).long()
                 
         return self.modality_1, self.modality_2, self.subject_id, self.sleep_stage
     
