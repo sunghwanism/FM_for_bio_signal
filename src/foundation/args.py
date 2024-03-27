@@ -15,7 +15,9 @@ root_dir = '/NFS/Users/moonsh/FM_biosignal'
 Modalities = 'hr', 'ecg', 'activity'
 """
 
-base_config = {'data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair',
+base_config = {'train_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair',
+               'val_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair',
+               'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
                'modalities': ['ecg', 'hr'],
                 'label_key': 'stage',
                 'subject_key': 'subject_idx',
