@@ -125,39 +125,39 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
                 
 def print_args(args):
     
-    logging.info("Base Configs:")
+    print("Base Configs:")
     for k, v in args.base_config.items():
-        logging.info(f"\t{k}: {v}")
-    logging.info("----------"*10)
+        print(f"\t{k}: {v}")
+    print("----------"*10)
     
-    logging.info("Focal Configs:")
+    print("Focal Configs:")
     for k, v in args.focal_config.items():
         print(f"\t{k}: {v}")
-    logging.info("----------"*10)
+    print("----------"*10)
     
-    logging.info("Subject Invariant Configs:")
+    print("Subject Invariant Configs:")
     for k, v in args.subj_invariant_config.items():
         print(f"\t{k}: {v}")
-    logging.info("----------"*10)
+    print("----------"*10)
     
-    logging.info("Trainer Configs:")
+    print("Trainer Configs:")
     for k, v in args.trainer_config.items():
         print(f"\t{k}: {v}")
-    logging.info("----------"*10)
+    print("----------"*10)
 
 def main():
     
     # Check the arguments
-    print_args(args)
     time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     
-    logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s: %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filename=os.path.join(args.base_config["log_save_dir"], 
-                                          f'focal_subj_mesa_{time}.log'),
-                    filemode='a')
-    
+    # logging.basicConfig(level=print,
+    #                 format='%(asctime)s %(levelname)s: %(message)s',
+    #                 datefmt='%Y-%m-%d %H:%M:%S',
+    #                 filename=os.path.join(args.base_config["log_save_dir"], 
+    #                                       f'focal_subj_mesa_{time}.log'),
+    #                 filemode='a')
+    print_args(args)
+
     train_dataset = MESAPairDataset(file_path=args.base_config['train_data_dir'],
                                     modalities=args.base_config['modalities'],
                                     subject_idx=args.base_config['subject_key'],
@@ -167,7 +167,7 @@ def main():
                                                shuffle=True,
                                                num_workers=4)
     
-    logging.info("Successfully Loaded Train Data")
+    print("Successfully Loaded Train Data")
 
     val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
                                     modalities=args.base_config['modalities'],
@@ -179,28 +179,28 @@ def main():
                                              shuffle=False,
                                              num_workers=2)
     
-    logging.info("Successfully Loaded Validation Data")    
+    print("Successfully Loaded Validation Data")    
 
-    logging.info("Loading the Focal Model")
+    print("Loading the Focal Model")
     
     # AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5)
     # advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
-    logging.info("Complete Loading the Adversarial Model")
+    print("Complete Loading the Adversarial Model")
     
     # FOCAL_Model = FOCAL(args, backbone)
     # focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
     # focal_loss_fn = FOCALLoss(args)
-    logging.info("Complete Loading the FOCAL Model")
+    print("Complete Loading the FOCAL Model")
     
     # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    logging.info("Start Training SA Focal Model")
+    print("Start Training SA Focal Model")
     
     
     # output = train_SA_Focal(train_loader, val_loader, FOCAL_Model, AdversarialModel,
     #                         focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
     
-    logging.info("Finished Training SA Focal Model")
+    print("Finished Training SA Focal Model")
     
     
 if __name__ == '__main__':
