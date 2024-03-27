@@ -34,7 +34,7 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             # Predict the subject
             subj_preds = advs_model(enc_modal_1, enc_modal_2)
             
-            advs_loss = advs_model.forward_adversarial_loss(subj_preds, subj)
+            advs_loss = advs_model.forward_adversarial_loss(subj_preds, subj_labels)
             
             # To-do for calculating the accuracy
             # num_adversary_correct_train_preds += adversarial_loss_fn.get_number_of_correct_preds(x_t1_initial_subject_preds, y)
@@ -60,7 +60,7 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             
             x1_embd, x2_embd = model.encoder(raw_modal_1, raw_modal_2)
             subj_pred = advs_model(x1_embd, x2_embd)
-            subj_invariant_loss = advs_model.forward_adversarial_loss(subj_pred, subj) # To-do -> add subject_invariant function loss
+            subj_invariant_loss = advs_model.forward_subject_invariance_loss(subj_pred, subj_labels, args.adversarial_weighting_factor) # DONE -> add subject_invariant function loss
             
             focal_loss = focal_loss_fn(x1_represent, x2_represent, subj_invariant_loss) # To-Do -> add regularization term about subject invariant
             focal_loss.backward()
