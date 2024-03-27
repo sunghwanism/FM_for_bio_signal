@@ -1,78 +1,48 @@
-from torch.utils.data import Dataset
 import os
+import numpy as np
+import torch
+from torch.utils.data import Dataset
 
-class MultiModalSequenceDataset(Dataset):
-    def __init__(self, args, index_file):
-        """
-        Extract multiple sequences of consecutive samples at the time dimension.
-        """
-        self.args = args
-        self.sample_files = list(np.loadtxt(index_file, dtype=str))
-        self.partition_subsequences()
 
-    def partition_subsequences(self):
-        """
-        Extract all sequence IDs from the sample files.
-        seq_to_sample: {sequence_id: [(sample_id, sample_file), ...], ...}
-        """
-        seq_len = self.args.dataset_config["seq_len"]
+class MESAPairDataset(Dataset):
+    def __init__(self, file_path, modalities=['ecg', 'hr'], subject_idx='subject_idx', stage='stage'):
+        super(MESAPairDataset, self).__init__()
 
-        if self.args.dataset == "RealWorld_HAR":
-            delimiter = "-"
-        else:
-            delimiter = "_"
-
-        seq_to_samples = {}
-        for sample_idx, sample_file in enumerate(self.sample_files):
-            # Sequence ID is separeted by the last underscore symbol.
-            basename = os.path.basename(sample_file)
-            seq = basename.rsplit(delimiter, 1)[0]
-
-            if seq not in seq_to_samples:
-                seq_to_samples[seq] = [(sample_idx, sample_file)]
-            else:
-                seq_to_samples[seq].append((sample_idx, sample_file))
-
-        # sort the sequences
-        for seq in seq_to_samples:
-            seq_to_samples[seq].sort(key=lambda x: int(os.path.basename(x[1]).rsplit(delimiter, 1)[1].split(".")[0]))
-            seq_to_samples[seq] = [e[0] for e in seq_to_samples[seq]]
-
-        # divide sequences into subsequences of fixed length
-        self.subseqs = []
-        self.subseq_to_sample_idx = {}
-        for seq in seq_to_samples:
-            for i in range(0, len(seq_to_samples[seq]), seq_len):
-                subseq = f"{seq}_{i}"
-                self.subseqs.append(subseq)
-
-                # constitute the sample list with fixed length
-                sample_id_list = seq_to_samples[seq][i : i + seq_len]
-                while len(sample_id_list) < seq_len:
-                    sample_id_list.append(sample_id_list[-1])
-
-                self.subseq_to_sample_idx[subseq] = sample_id_list
+        self.file_path = os.listdir(file_path)
+        self.modalities = modalities
+        self.subject_idx = subject_idx
+        self.stage = stage
 
     def __len__(self):
-        return len(self.subseqs)
 
-    def __getitem__(self, sample_idx):
-        """
-        Extract a random sequence of samples.
-        """
-        sample = torch.load(self.sample_files[sample_idx])
-        data = sample["data"]
+        return len(self.file_path)
 
-        if isinstance(sample["label"], dict):
-            if self.args.task == "vehicle_classification":
-                label = sample["label"]["vehicle_type"]
-            elif self.args.task == "distance_classification":
-                label = sample["label"]["distance"]
-            elif self.args.task == "speed_classification":
-                label = sample["label"]["speed"]
+
+    def __getitem__(self, idx):
+        
+        use_files = self.file_path[idx]
+        print(use_files)
+
+        for i, datafile in enumerate(use_files):
+            data = np.load(os.path.join(self.file_path, datafile)) # numpy file on each sample (segments)
+            print(data.shape)
+
+            if i == 0:
+                self.modality_1 = data[self.modalities[0]]
+                self.modality_2 = data[self.modalities[1]]
+                self.subject_id = data[self.subject_idx]
+                self.sleep_stage = data[self.stage]
+
             else:
-                raise ValueError(f"Unknown task: {self.args.task}")
-        else:
-            label = sample["label"]
+                self.modality_1 = np.concatenate([self.modality_1, data[self.modalities[0]]])
+                self.modality_2 = np.concatenate([self.modality_2, data[self.modalities[1]]])
+                self.subject_id = np.concatenate([self.subject_id, data[self.subject_idx]])
+                self.sleep_stage = np.concatenate([self.sleep_stage, data[self.stage]])
 
-        return data, label
+        self.modality_1 = torch.FloatTensor(self.modality_1)
+        self.modality_2 = torch.FloatTensor(self.modality_2)
+        self.subject_id = torch.long(self.subject_id)
+        self.sleep_stage = torch.long(self.sleep_stage)
+                
+        return self.modality_1, self.modality_2, self.subject_id, self.sleep_stage
+    
