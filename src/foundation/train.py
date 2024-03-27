@@ -2,18 +2,26 @@ import os
 import sys
 sys.path.append('./')
 
-import torch
-from foundation.models import .
+import args
+import argparse
+import logging
+
+# import torch
+from models.AdversarialModel import AdversarialModel
+from models.FOCALModules import FOCAL
+import datetime
 
 
 
 def train_SA_Focal(train_loader, val_loader, model, advs_model, 
                    optimizer, advs_optimizer, focal_loss_fn, device, args):
     
+    trainer_config = args.trainer_config
+    
     model.train()
     best_val_loss = float('inf')
     
-    for ep in range(args.epochs):
+    for ep in range(trainer_config['epochs']):
         running_advs_train_loss = 0
         focal_train_loss = 0
         
@@ -114,23 +122,63 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
                     print("************* Model Saved *************")
                 print("-----"*10)
                 
+def print_args(args):
+    
+    logging.info("Base Configs:")
+    for k, v in args.base_config.items():
+        logging.info(f"\t{k}: {v}")
+    logging.info("----------"*10)
+    
+    logging.info("Focal Configs:")
+    for k, v in args.focal_config.items():
+        print(f"\t{k}: {v}")
+    logging.info("----------"*10)
+    
+    logging.info("Subject Invariant Configs:")
+    for k, v in args.subj_invariant_config.items():
+        print(f"\t{k}: {v}")
+    logging.info("----------"*10)
+    
+    logging.info("Trainer Configs:")
+    for k, v in args.trainer_config.items():
+        print(f"\t{k}: {v}")
+    logging.info("----------"*10)
 
+def main():
+    
+    # Check the arguments
+    print_args(args)
+    time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s: %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename=os.path.join(args.base_config["log_save_dir"], 
+                                          f'focal_subj_mesa_{time}.log'),
+                    filemode='a')
+    
+    train_dataset = None
+    val_dataset = None
+    
+    # train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.trainer_config['batch_size'], shuffle=True)
+    # val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.trainer_config['batch_size'], shuffle=False)
+    # print("Successfully Loaded Data")
+    
+    
 
-def main(args):
+    # print("Start Training SA Focal Model")
     
-    print("Start Training SA Focal Model")
+    # AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5)
+    # advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
     
-    AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5)
-    advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
-    
-    FOCAL_Model = FOCAL(args, backbone)
-    focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
-    focal_loss_fn = FOCALLoss(args)
+    # FOCAL_Model = FOCAL(args, backbone)
+    # focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
+    # focal_loss_fn = FOCALLoss(args)
         
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # output = train_SA_Focal()
     
     
 if __name__ == '__main__':
-    args
-    main(args)
+    
+    main()

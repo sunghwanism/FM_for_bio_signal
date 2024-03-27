@@ -7,33 +7,32 @@ from models.FOCALModules import split_features
 class FOCALLoss(nn.Module):
     def __init__(self, args):
         super(FOCALLoss, self).__init__()
-        self.args = args
-        self.config = args.dataset_config["FOCAL"]
-        self.modalities = args.dataset_config["modality_names"]
+        self.config = args.focal_config
+        self.modalities = args.base_config["modalities"] # return example ['ecg', 'hr']
         self.criterion = nn.CrossEntropyLoss(reduction="mean")
         self.similarity_f = nn.CosineSimilarity(dim=-1)
         self.orthonal_loss_f = nn.CosineEmbeddingLoss(reduction="mean")
     
-        # decide the temperature
-        if isinstance(self.config["temperature"], dict):
-            self.temperature = self.config["temperature"][args.model]
-        else:
-            self.temperature = self.config["temperature"]
+        # # decide the temperature
+        # if isinstance(self.config["temperature"], dict):
+        #     self.temperature = self.config["temperature"][args.model]
+        # else:
+        #     self.temperature = self.config["temperature"]
 
     def mask_correlated_samples(self, seq_len, batch_size, temporal=False):
         """
         Return a mask where the positive sample locations are 0, negative sample locations are 1.
-        """ㄴ
+        """
         if temporal:
             """Extract comparison between sequences, output: [B * Seq, B * Seq]"""
-            mask = torch.ones([batch_size, batch_size], dtype=bool).to(self.args.device)
+            mask = torch.ones([batch_size, batch_size], dtype=bool).to(self.config.device)
             mask = mask.fill_diagonal_(0)
             mask = mask.repeat_interleave(seq_len, dim=0).repeat_interleave(seq_len, dim=1)
         else:
             """Extract [2N, 2N-2] negative locations from [2N, 2N] matrix, output: [seq, B, B]"""
             N = 2 * batch_size
-            diag_mat = torch.eye(batch_size).to(self.args.device)
-            mask = torch.ones((N, N)).to(self.args.device)
+            diag_mat = torch.eye(batch_size).to(self.config.device)
+            mask = torch.ones((N, N)).to(self.config.device)
 
             mask = mask.fill_diagonal_(0)
             mask[0:batch_size, batch_size : 2 * batch_size] -= diag_mat
@@ -117,7 +116,7 @@ class FOCALLoss(nn.Module):
             (4) Compute orthogonality loss beween shared-private and private-private representations.
             (5) For each subsequence, compute the temporal correlation loss.
         """
-        seq_len = self.args.dataset_config["seq_len"]
+        seq_len = self.config.dataset_config["seq_len"]
         
         # Step 0: Reshape features
         reshaped_mod_features1, reshaped_mod_features2 = {}, {}
@@ -131,7 +130,7 @@ class FOCALLoss(nn.Module):
 
         # Step 2: shared space contrastive loss
         shared_contrastive_loss = 0
-        if self.args.tag == "noPrivate":
+        if self.config.tag == "noPrivate":
             for mod_features in [reshaped_mod_features1, reshaped_mod_features2]:
                 for i, mod1 in enumerate(self.modalities):
                     for mod2 in self.modalities[i + 1 :]:
@@ -177,11 +176,7 @@ class FOCALLoss(nn.Module):
             shared_contrastive_loss * self.config["shared_contrastive_loss_weight"]
             + private_contrastive_loss * self.config["private_contrastive_loss_weight"]
             + orthogonality_loss * self.config["orthogonal_loss_weight"]
+            + subject_invariance_loss * self.config["subject_invariant_loss_weight"]
         )
-        
-        #####################################################################################
-        # Adding subject_invariance_loss
-        loss += loss + subject_invariance_loss
-        #####################################################################################
         
         return loss
