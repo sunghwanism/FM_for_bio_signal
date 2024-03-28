@@ -8,6 +8,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Set the root directory
 root_dir = '/NFS/Users/moonsh/FM_biosignal'
+data_dir = "/NFS/Users/moonsh/data/mesa/preproc"
 
 ################################################################################
 # General Arguments
@@ -15,8 +16,8 @@ root_dir = '/NFS/Users/moonsh/FM_biosignal'
 Modalities = 'hr', 'ecg', 'activity'
 """
 
-base_config = {'train_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_small', # 'pair' is real train data
-               'val_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair',
+base_config = {'train_data_dir': os.path.join(data_dir, 'pair_small'), # 'pair' is real train data
+               'val_data_dir': os.path.join(data_dir, 'pair'),
                'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
