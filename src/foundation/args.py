@@ -7,8 +7,9 @@ import torch
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Set the root directory
-root_dir = '/NFS/Users/moonsh/FM_biosignal'
-data_dir = '/NFS/Users/moonsh/data/mesa/preproc'
+root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
+data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
+
 
 ################################################################################
 # General Arguments
@@ -33,11 +34,13 @@ base_config = {'train_data_dir': os.path.join(data_dir, 'pair_small'), # 'pair' 
 
 data_config = {'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
-               'Augmentation':['NoAug', 'GaussianNoise'], # 'NoAug', 'GaussianNoise', "AmplitudeScale"
+               'augmenter': 'GaussianNoise', # 'NoAug', 'GaussianNoise', "AmplitudeScale"
+               'augmenter_config': {
+                   'GaussianNoise': {'max_noise_std': 0.1},
+                   'AmplitudeScale': {'amplitude_scale': 0.5}
+                },
                'num_classes': None,
-               
-               }
-
+}
 
 ################################################################################
 # For Focal Loss
@@ -50,6 +53,7 @@ focal_config = {'backbone':
                                          'conv_dim': 128,
                                          'num_recurrent_layers': 2,
                                          'recurrent_dim': 256,
+                                         'hidden_dim': 128,
                                          'num_classes': 5, # in SSL -> Embedding Dimension / in Supervised -> Number of Classes
                                          'fc_dim': 64
                                          }

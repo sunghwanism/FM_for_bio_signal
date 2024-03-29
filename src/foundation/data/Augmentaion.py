@@ -6,18 +6,20 @@ from random import random
 
 
 def init_augmenter(args):
-    if args.augmenter == "GaussianNoise":
+    augmenter_name = args.data_config['augmenter']
+    augmenter_config = args.data_config['augmenter_config'].get(augmenter_name, {})
+
+    if augmenter_name == "GaussianNoise":
         print("Loading GaussianNoise augmenter...")
-        return GaussianNoise(max_noise_std=args.max_noise_std)
-    elif args.augmenter == "AmplitudeScale":
+        return GaussianNoise(**augmenter_config)
+    elif augmenter_name == "AmplitudeScale":
         print("Loading AmplitudeScale augmenter...")
-        return AmplitudeScale(amplitude_scale=args.amplitude_scale)
-    elif args.augmenter == "NoAugmenter":
+        return AmplitudeScale(**augmenter_config)
+    elif augmenter_name == "NoAugmenter":
         print("Loading NoAugmenter augmenter...")
         return NoAugmenter(args)
     else:
         raise NotImplementedError
-
 
 class NoAugmenter(nn.Module):
     def __init__(self, args) -> None:

@@ -37,7 +37,10 @@ class DeepSense(nn.Module):
         self.config = args.focal_config["backbone"]["DeepSense"]
         self.device = args.base_config["device"]
         self.modalities = args.data_config["modalities"]
-
+        
+        # Intialize the encoder
+        self.init_encoder()
+        
     def init_encoder(self):
         
         self.sample_dim = self.config["recurrent_dim"] * 2 * len(self.modalities)
@@ -60,20 +63,23 @@ class DeepSense(nn.Module):
                                             stride=1,
                                             padding='same',
                                             )
-            else:              
-                for i in self.config["num_conv_layers"]:
-                    self.modality_extractors[mod].append(ConvBlock(in_channels=dims[i], 
+            else:   
+                conv_blocks = []           
+                for i in range(self.config["num_conv_layers"]):
+                    conv_blocks.append(ConvBlock(in_channels=dims[i], 
                                                                     out_channels=dims[i+1],
                                                                     kernel_size=self.config["kernel_size"], 
                                                                     stride=1,
                                                                     padding='same',
                                                                     ))
-            self.modality_extractors[mod].append(ConvBlock(in_channels=int(self.config["conv_dim"]/2),
+                conv_blocks.append(ConvBlock(in_channels=int(self.config["conv_dim"]/2),
                                                             out_channels=self.config["conv_dim"],
                                                             kernel_size=self.config["kernel_size"],
                                                             stride=self.config["stride"],
                                                             padding='same',
                                                             ))
+                self.modality_extractors[mod] = nn.Sequential(*conv_blocks)
+            
             print(f"{mod} extractor is initialized.")
                     
         # Setting GRU
@@ -87,7 +93,7 @@ class DeepSense(nn.Module):
             print(f"{mod} recurrent layer is initialized.")
             
         
-        self.class_yaer = nn.Sequential(nn.Linaer(self.sample_dim, self.config["fc_dim"]),
+        self.class_layer = nn.Sequential(nn.Linear(self.sample_dim, self.config["fc_dim"]),
                                         nn.GELU(),
                                         nn.Linear(self.config["fc_dim"], self.config["num_classes"]))
         
@@ -137,7 +143,7 @@ class DeepSense(nn.Module):
         
         else:
             sample_features = torch.cat(modality_features, dim=1)
-            logits = self.class_yaer(sample_features)
+            logits = self.class_layer(sample_features)
             
             return logits
         
