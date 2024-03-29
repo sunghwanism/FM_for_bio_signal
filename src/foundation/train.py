@@ -9,8 +9,12 @@ import logging
 import torch
 from models.AdversarialModel import AdversarialModel
 from models.FOCALModules import FOCAL
+from models.Backbone import DeepSense
+
+
 from data.Dataset import MESAPairDataset
 import datetime
+
 
 from data.Augmentaion import init_augmenter
 
@@ -31,8 +35,8 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
         running_advs_train_loss = 0
         focal_train_loss = 0
         
-        for raw_modal_1, raw_modal_2, subj in train_loader:
-            raw_modal_1, raw_modal_2, subj = raw_modal_1.to(device), raw_modal_2.to(device), subj.to(device) # [B, 30], [B, 30*256], [B, 1]
+        for raw_modal_1, raw_modal_2, subj_label in train_loader:
+            raw_modal_1, raw_modal_2, subj_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device) # [B, 30], [B, 30*256], [B, 1]
             
             aug_1_modal_1 = aug_1(raw_modal_1)
             aug_2_modal_1 = aug_2(raw_modal_1)
@@ -49,12 +53,16 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             advs_optimizer.zero_grad()
             
             # Using Encoder for classify the subject
-            enc_modal_1, enc_modal_2 = model.encoder(raw_modal_1, raw_modal_2) # To-do -> Make encoder function in Focal Module
+            enc_feature_1, enc_feature_2 = model(aug_1_modal_1, aug_1_modal_2, aug_2_modal_1, aug_2_modal_2, proj_head=True)
+            # enc_feature1 -> dict // (example) enc_feature1['ecg'] & enc_feature1['hr'] from Augmentation 1
+            # enc_feature2 -> dict // (example) enc_feature2['ecg'] & enc_feature2['hr'] from Augmentation 2
+            
             
             # Predict the subject
-            subj_preds = advs_model(enc_modal_1, enc_modal_2)
+            subj_preds = advs_model(enc_modal_1, enc_modal_2) 
+            # or subj_preds = advs_model(enc_feature_1['ecg'], enc_feature_1['hr], enc_feature_2['ecg'], enc_feature_2['hr'])
             
-            advs_loss = advs_model.forward_adversarial_loss(subj_preds, subj_labels)
+            advs_loss = advs_model.forward_adversarial_loss(subj_preds, subj_label)
             
             # To-do for calculating the accuracy
             # num_adversary_correct_train_preds += adversarial_loss_fn.get_number_of_correct_preds(x_t1_initial_subject_preds, y)
@@ -178,9 +186,7 @@ def main():
                                                shuffle=True,
                                                num_workers=4)
     
-    print(next(iter(train_loader)))
-    
-    # print("Successfully Loaded Train Data")
+    print("Successfully Loaded Train Data")
 
     # val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
     #                                 modalities=args.base_config['modalities'],
@@ -200,9 +206,16 @@ def main():
     # advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
     print("Complete Loading the Adversarial Model")
     
-    # backbone = 
-    # FOCAL_Model = FOCAL(args, backbone)
-    # focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
+    
+    if args.focal_config["backbone"].keys() == "DeepSense":
+        backbone = DeepSense(args)
+        
+    else:
+        raise ValueError("Not Supported Backbone")
+    
+    
+    FOCAL_Model = FOCAL(args, backbone)
+    focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
     # focal_loss_fn = FOCALLoss(args)
     print("Complete Loading the FOCAL Model")
     

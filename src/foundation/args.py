@@ -42,9 +42,20 @@ data_config = {'modalities': ['ecg', 'hr'],
 ################################################################################
 # For Focal Loss
 
-focal_config = {'backbone': 'DeepSense',
+focal_config = {'backbone': 
+                          {'DeepSense': {'kernel_size': 3,
+                                         'stride': 1,
+                                         'padding': 1,
+                                         'num_conv_layers': 2,
+                                         'conv_dim': 128,
+                                         'num_recurrent_layers': 2,
+                                         'recurrent_dim': 256,
+                                         'num_classes': 5, # in SSL -> Embedding Dimension / in Supervised -> Number of Classes
+                                         'fc_dim': 64
+                                         }
+                             },
                 'tag': 'usePrivate', # 'noPrivate' for not using private loss
-                'embedding_dim': 128,
+                'embedding_dim': 256,
                 'num_subjects': 100,
                 'dropout_rate': 0.5,
                 'lr': 0.001,
@@ -53,7 +64,6 @@ focal_config = {'backbone': 'DeepSense',
                 'orthogonality_loss_weight': 0.2,
                 'subject_invariant_loss_weight': 0.2,
                 'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
 }
 
 ################################################################################

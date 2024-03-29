@@ -21,7 +21,7 @@ class DeepSense(nn.Module):
         """
         super().__init__()
         self.args = args
-        self.config = args.dataset_config["DeepSense"]
+        self.config = args.dataset_config
         self.device = args.device
         self.modalities = args.dataset_config["modality_names"]
         self.locations = args.dataset_config["location_names"]
@@ -33,27 +33,25 @@ class DeepSense(nn.Module):
     def init_encoder(self, args):
         # Step 1: Single (loc, mod) feature
         self.loc_mod_extractors = nn.ModuleDict()
-        for loc in self.locations:
-            self.loc_mod_extractors[loc] = nn.ModuleDict()
-            for mod in self.modalities:
-                if type(self.config["loc_mod_conv_lens"]) is dict:
-                    """for acoustic processing in Parkland data"""
-                    conv_lens = self.config["loc_mod_conv_lens"][mod]
-                    in_stride = self.config["loc_mod_in_conv_stride"][mod]
-                else:
-                    conv_lens = self.config["loc_mod_conv_lens"]
-                    in_stride = 1
+        for mod in self.modalities:
+            if type(self.config["loc_mod_conv_lens"]) is dict:
+                """for acoustic processing in Parkland data"""
+                conv_lens = self.config["loc_mod_conv_lens"][mod]
+                in_stride = self.config["loc_mod_in_conv_stride"][mod]
+            else:
+                conv_lens = self.config["loc_mod_conv_lens"]
+                in_stride = 1
 
-                # define the extractor
-                self.loc_mod_extractors[loc][mod] = ConvBlock(
-                    in_channels=args.dataset_config["loc_mod_in_freq_channels"][loc][mod],
-                    out_channels=self.config["loc_mod_out_channels"],
-                    in_spectrum_len=args.dataset_config["loc_mod_spectrum_len"][loc][mod],
-                    conv_lens=conv_lens,
-                    dropout_ratio=self.config["dropout_ratio"],
-                    num_inter_layers=self.config["loc_mod_conv_inter_layers"],
-                    in_stride=in_stride,
-                )
+            # define the extractor
+            self.loc_mod_extractors[loc][mod] = ConvBlock(
+                in_channels=args.dataset_config["loc_mod_in_freq_channels"][loc][mod],
+                out_channels=self.config["loc_mod_out_channels"],
+                in_spectrum_len=args.dataset_config["loc_mod_spectrum_len"][loc][mod],
+                conv_lens=conv_lens,
+                dropout_ratio=self.config["dropout_ratio"],
+                num_inter_layers=self.config["loc_mod_conv_inter_layers"],
+                in_stride=in_stride,
+            )
 
         # Step 3: Loc fusion
         self.loc_fusion_layers = nn.ModuleDict()

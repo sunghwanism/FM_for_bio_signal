@@ -11,25 +11,26 @@ class FOCAL(nn.Module):
         super(FOCAL, self).__init__()
 
         self.args = args
-        self.config = args.dataset_config["FOCAL"]
-        self.backbone_config = args.dataset_config[args.model]
-        self.modalities = args.dataset_config["modality_names"]
+        self.config = args.focal_config
+        self.modalities = args.data_config["modalities"]
 
         # build encoders
         self.backbone = backbone
 
-    def forward(self, aug_freq_input1, aug_freq_input2, proj_head=False):
+    def forward(self, aug1_mod1, aug1_mod2, aug2_mod1, aug2_mod2, proj_head=False):
         """
         Input:
-            freq_input1: Input of the first augmentation.
-            freq_input2: Input of the second augmentation.
+            aug1_mod1: augmented_1 input of the first modality.
+            aug1_mod2: augmented_1 input of the second modality.
+            aug2_mod1: augmented_2 input of the first modality.
+            aug2_mod2: augmented_2 input of the second modality.
         Output:
             mod_features1: Projected mod features of the first augmentation.
             mod_features2: Projected mod features of the second augmentation.
         """
         # compute features
-        mod_features1 = self.backbone(aug_freq_input1, class_head=False, proj_head=proj_head)
-        mod_features2 = self.backbone(aug_freq_input2, class_head=False, proj_head=proj_head)
+        mod_features1 = self.backbone(aug1_mod1, aug1_mod2, class_head=False, proj_head=proj_head)
+        mod_features2 = self.backbone(aug2_mod1, aug2_mod2, class_head=False, proj_head=proj_head)
 
         return mod_features1, mod_features2
 
@@ -48,6 +49,7 @@ def split_features(mod_features):
                 "shared": mod_features[mod][:, 0:split_dim],
                 "private": mod_features[mod][:, split_dim:],
             }
+            
         else:
             b, seq, dim = mod_features[mod].shape
             split_dim = dim // 2
