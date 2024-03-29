@@ -40,17 +40,16 @@ class MESAPairDataset(Dataset):
 
     def __getitem__(self, idx):
         
-       self.modality_1[idx]
-       self.modality_2[idx]
-       self.subject_id[idx]
-       self.sleep_stage[idx]
+       batch_modal_1 = self.modality_1[idx]
+       batch_modal_2 = self.modality_2[idx]
+       batch_subj_id = self.subject_id[idx]
+       batch_stage = self.sleep_stage[idx]
        
-       self.modality_1 = torch.FloatTensor(self.modality_1)
-       self.modality_2 = torch.FloatTensor(self.modality_2)
-       self.subject_id = torch.Tensor(self.subject_id).long()
-       self.sleep_stage = torch.Tensor(self.sleep_stage).long()
+       self.batch_modal_1 = torch.FloatTensor(batch_modal_1)
+       self.batch_modal_2 = torch.FloatTensor(batch_modal_2)
+       self.batch_subj_id = torch.Tensor(batch_subj_id, dtype=torch.long())
+       self.batch_stage = torch.Tensor(batch_stage, dtype=torch.long())
        
-       sample = [self.modality_1, self.modality_2, self.subject_id, self.sleep_stage]
+       sample = [self.batch_modal_1, self.batch_modal_2, self.batch_subj_id, self.batch_stage]
        
        return sample
-    
