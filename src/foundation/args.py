@@ -18,7 +18,9 @@ Modalities = 'hr', 'ecg', 'activity'
 
 base_config = {'train_data_dir': os.path.join(data_dir, 'pair_small'), # 'pair' is real train data
                'val_data_dir': os.path.join(data_dir, 'pair'),
-               'test_data_dir': os.path.join(data_dir, 'pair_test'),
+               'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
+               'modalities': ['ecg', 'hr'],
+               'label_key': 'stage',
                'subject_key': 'subject_idx',
                'train_num_subjects': 100,
                'test_num_subjects': 50,
