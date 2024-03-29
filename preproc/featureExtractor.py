@@ -113,14 +113,20 @@ def get_ecg_features(subject,load_dir, save_dir):
     feat.to_csv(os.path.join(save_dir,'subject_'+subject+'_ecg_feat.csv'))
     epochs_df.to_csv(os.path.join(save_dir,'subject_'+subject+'_ecg_proc.csv'))
 
-def subject_extractor(data_dir):
+def subject_extractor(data_dir, _type='np'):
     file_list = os.listdir(data_dir)
     result = []
     file_list = [file for file in file_list if 'ecg' in file]
     
-    for file in file_list:
-        subject_id = file.split('_')[1]
-        result.append(subject_id)
+    if _type == "np":
+        for file in file_list:
+            subject_id = file.split('_')[0]
+            result.append(subject_id)
+
+    else:
+        for file in file_list:
+            subject_id = file.split('_')[1]
+            result.append(subject_id)
         
     return result
 
@@ -165,8 +171,7 @@ def get_ecg_features_np(subject, load_dir, save_dir):
     epochs_df['labels4'] = epochs_df['labels4'].replace([5], 3)
     
     #same for features 
-    labels_trunc = labels.iloc[::256*30, :].reset_index()
-
+    labels_trunc = labels
 
     feat['labels'] = labels_trunc['psg_status'].values
 
@@ -181,3 +186,5 @@ def get_ecg_features_np(subject, load_dir, save_dir):
     
     feat.to_csv(os.path.join(save_dir,'subject_'+subject+'_ecg_feat.csv'))
     epochs_df.to_csv(os.path.join(save_dir,'subject_'+subject+'_ecg_proc.csv'))
+
+    print(f"Finished processing subject {subject}")
