@@ -12,12 +12,17 @@ from models.FOCALModules import FOCAL
 from data.Dataset import MESAPairDataset
 import datetime
 
+from data.Augmentaion import init_augmenter
+
 
 
 def train_SA_Focal(train_loader, val_loader, model, advs_model, 
                    optimizer, advs_optimizer, focal_loss_fn, device, args):
     
     trainer_config = args.trainer_config
+    
+    aug_1 = init_augmenter(args.base_config['augmentation'][0])
+    aug_2 = init_augmenter(args.base_config['augmentation'][1])
     
     model.train()
     best_val_loss = float('inf')
@@ -27,7 +32,13 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
         focal_train_loss = 0
         
         for raw_modal_1, raw_modal_2, subj in train_loader:
-            raw_modal_1, raw_modal_2, subj = raw_modal_1.to(device), raw_modal_2.to(device), subj.to(device)
+            raw_modal_1, raw_modal_2, subj = raw_modal_1.to(device), raw_modal_2.to(device), subj.to(device) # [B, 30], [B, 30*256], [B, 1]
+            
+            aug_1_modal_1 = aug_1(raw_modal_1)
+            aug_2_modal_1 = aug_2(raw_modal_1)
+            
+            aug_1_modal_2 = aug_1(raw_modal_2)
+            aug_2_modal_2 = aug_2(raw_modal_2)
             
             # For updating the only advs_model (classifier)
             for param in model.parameters():
@@ -187,6 +198,7 @@ def main():
     # advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
     print("Complete Loading the Adversarial Model")
     
+    # backbone = 
     # FOCAL_Model = FOCAL(args, backbone)
     # focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
     # focal_loss_fn = FOCALLoss(args)

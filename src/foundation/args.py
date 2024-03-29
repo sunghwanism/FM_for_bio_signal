@@ -8,6 +8,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Set the root directory
 root_dir = '/NFS/Users/moonsh/FM_biosignal'
+data_dir = '/NFS/Users/moonsh/data/mesa/preproc'
 
 ################################################################################
 # General Arguments
@@ -15,17 +16,26 @@ root_dir = '/NFS/Users/moonsh/FM_biosignal'
 Modalities = 'hr', 'ecg', 'activity'
 """
 
-base_config = {'train_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_small', # 'pair' is real train data
-               'val_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair',
-               'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
-               'modalities': ['ecg', 'hr'],
-               'label_key': 'stage',
+base_config = {'train_data_dir': os.path.join(data_dir, 'pair_small'), # 'pair' is real train data
+               'val_data_dir': os.path.join(data_dir, 'pair'),
+               'test_data_dir': os.path.join(data_dir, 'pair_test'),
                'subject_key': 'subject_idx',
                'train_num_subjects': 100,
                'test_num_subjects': 50,
                'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                'log_save_dir': os.path.join(root_dir, 'logs'),
 }
+
+################################################################################
+# Dataset Arguments
+
+data_config = {'modalities': ['ecg', 'hr'],
+               'label_key': 'stage',
+               'Augmentation':['NoAug', 'GaussianNoise'], # 'NoAug', 'GaussianNoise', "AmplitudeScale"
+               'num_classes': None,
+               
+               }
+
 
 ################################################################################
 # For Focal Loss
@@ -66,3 +76,5 @@ trainer_config = {'batch_size': 256,
                   'val_interval': 10,
                   'model_save_dir': os.path.join(root_dir, 'checkpoints'),
 }
+
+
