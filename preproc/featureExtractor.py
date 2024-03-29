@@ -87,7 +87,8 @@ def get_ecg_features(subject,load_dir, save_dir):
     feat.to_csv(save_dir+'subject_'+subject+'_ecg_feat.csv')
     epochs_df.to_csv(save_dir+'subject_'+subject+'_ecg_proc.csv')
 
-def subject_extractor(file_list):
+def subject_extractor(data_dir):
+    file_list = os.listdir(data_dir)
     result = []
     file_list = [file for file in file_list if 'ecg' in file]
     
