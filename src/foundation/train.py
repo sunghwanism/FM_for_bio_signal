@@ -209,7 +209,7 @@ def main():
     
     
     if str(list(args.focal_config["backbone"].keys())[0]) == "DeepSense":
-        backbone = DeepSense(args)
+        backbone = DeepSense(args).to(args.focal_config["device"])
         
     else:
         raise ValueError("Not Supported Backbone")

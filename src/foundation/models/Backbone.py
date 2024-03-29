@@ -37,7 +37,6 @@ class DeepSense(nn.Module):
         self.config = args.focal_config["backbone"]["DeepSense"]
         self.device = args.base_config["device"]
         self.modalities = args.data_config["modalities"]
-        # self.locations = args.dataset_config["location_names"]
 
     def init_encoder(self):
         
