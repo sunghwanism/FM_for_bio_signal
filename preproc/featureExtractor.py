@@ -8,6 +8,30 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from scipy.signal import butter, filtfilt
 
+def load_ecg(df, window_size=30):
+
+    fs = 256
+
+    # Standardize ECG data
+    ecg_scaler = StandardScaler()
+    df['ECG'] = ecg_scaler.fit_transform(df['ECG'].values.reshape(-1, 1))
+
+    data = []
+    for idx in range(len(df) // (fs * window_size)):
+        start_window = window_size * idx * fs
+        
+        ecg = df['ECG'].iloc[start_window:start_window + window_size * fs].values
+        labels = df['psg_status'].iloc[start_window]
+        if labels in [2, 3]:
+            labels = 2
+        elif labels in [4, 5]:
+            labels = 3
+
+
+        data.append((ecg, labels))
+
+    return data
+
 
 # Define a new function
 def my_processing(ecg_signal,fs):
@@ -34,11 +58,13 @@ def get_ecg_features(subject,load_dir, save_dir):
 
     data_path = os.path.join(load_dir, f'subject_{subject}_ecg.csv')
     test_data = pd.read_csv(data_path)
+    
+    # data = load_ecg(test_data, window_size=30)
 
     fs = 256
     test_ecg = test_data.ECG
 
-    ecg_proc, info = my_processing(test_ecg,fs)
+    ecg_proc, info = my_processing(test_ecg, fs)
     
     #epoch data  
     window = 30 
@@ -83,9 +109,9 @@ def get_ecg_features(subject,load_dir, save_dir):
 
     # print(feat.head())
     # print(epochs_df.head())
-
-    feat.to_csv(save_dir+'subject_'+subject+'_ecg_feat.csv')
-    epochs_df.to_csv(save_dir+'subject_'+subject+'_ecg_proc.csv')
+    
+    feat.to_csv(os.path.join(save_dir,'subject_'+subject+'_ecg_feat.csv'))
+    epochs_df.to_csv(os.path.join(save_dir,'subject_'+subject+'_ecg_proc.csv'))
 
 def subject_extractor(data_dir):
     file_list = os.listdir(data_dir)
