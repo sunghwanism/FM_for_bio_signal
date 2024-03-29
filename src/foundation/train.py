@@ -203,7 +203,7 @@ def main():
 
     print("Loading the Focal Model")
     
-    # AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5)
+    # AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5).to(args.subj_invariant_config["device"])
     # advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
     print("Complete Loading the Adversarial Model")
     
@@ -214,8 +214,7 @@ def main():
     else:
         raise ValueError("Not Supported Backbone")
     
-    
-    FOCAL_Model = FOCAL(args, backbone)
+    FOCAL_Model = FOCAL(args, backbone).to(args.focal_config["device"])
     focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.focal_config["lr"])
     # focal_loss_fn = FOCALLoss(args)
     print("Complete Loading the FOCAL Model")
