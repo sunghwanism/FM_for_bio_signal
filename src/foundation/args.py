@@ -8,7 +8,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Set the root directory
 root_dir = '/NFS/Users/moonsh/FM_biosignal'
-data_dir = "/NFS/Users/moonsh/data/mesa/preproc"
+data_dir = '/NFS/Users/moonsh/data/mesa/preproc'
 
 ################################################################################
 # General Arguments
@@ -27,6 +27,17 @@ base_config = {'train_data_dir': os.path.join(data_dir, 'pair_small'), # 'pair' 
                'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                'log_save_dir': os.path.join(root_dir, 'logs'),
 }
+
+################################################################################
+# Dataset Arguments
+
+data_config = {'modalities': ['ecg', 'hr'],
+               'label_key': 'stage',
+               'Augmentation':['NoAug', 'GaussianNoise'], # 'NoAug', 'GaussianNoise', "AmplitudeScale"
+               'num_classes': None,
+               
+               }
+
 
 ################################################################################
 # For Focal Loss
@@ -67,3 +78,5 @@ trainer_config = {'batch_size': 256,
                   'val_interval': 10,
                   'model_save_dir': os.path.join(root_dir, 'checkpoints'),
 }
+
+
