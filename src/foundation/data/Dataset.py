@@ -35,7 +35,7 @@ class MESAPairDataset(Dataset):
                 
     def __len__(self):
 
-        return len(self.subject_idx)
+        return len(self.sleep_stage)
 
 
     def __getitem__(self, idx):
@@ -45,10 +45,10 @@ class MESAPairDataset(Dataset):
        batch_subj_id = self.subject_id[idx]
        batch_stage = self.sleep_stage[idx]
        
-       self.batch_modal_1 = torch.FloatTensor(batch_modal_1)
-       self.batch_modal_2 = torch.FloatTensor(batch_modal_2)
-       self.batch_subj_id = torch.Tensor(batch_subj_id, dtype=torch.long())
-       self.batch_stage = torch.Tensor(batch_stage, dtype=torch.long())
+       self.batch_modal_1 = torch.tensor(batch_modal_1, dtype=torch.float)
+       self.batch_modal_2 = torch.tensor(batch_modal_2, dtype=torch.float)
+       self.batch_subj_id = torch.tensor(batch_subj_id, dtype=torch.long)
+       self.batch_stage = torch.tensor(batch_stage, dtype=torch.long)
        
        sample = [self.batch_modal_1, self.batch_modal_2, self.batch_subj_id, self.batch_stage]
        

@@ -178,7 +178,9 @@ def main():
                                                shuffle=True,
                                                num_workers=4)
     
-    print("Successfully Loaded Train Data")
+    print(next(iter(train_loader)))
+    
+    # print("Successfully Loaded Train Data")
 
     # val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
     #                                 modalities=args.base_config['modalities'],
