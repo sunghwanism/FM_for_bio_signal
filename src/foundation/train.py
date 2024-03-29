@@ -208,7 +208,7 @@ def main():
     print("Complete Loading the Adversarial Model")
     
     
-    if args.focal_config["backbone"].keys() == "DeepSense":
+    if str(list(args.focal_config["backbone"].keys())[0]) == "DeepSense":
         backbone = DeepSense(args)
         
     else:
@@ -216,7 +216,7 @@ def main():
     
     
     FOCAL_Model = FOCAL(args, backbone)
-    focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.lr)
+    focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.focal_config["lr"])
     # focal_loss_fn = FOCALLoss(args)
     print("Complete Loading the FOCAL Model")
     

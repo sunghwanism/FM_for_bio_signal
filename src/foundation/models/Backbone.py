@@ -34,7 +34,7 @@ class DeepSense(nn.Module):
         super(DeepSense, self).__init__()
         
         self.args = args
-        self.config = args.focal_config["Backbone"]["DeepSense"]
+        self.config = args.focal_config["backbone"]["DeepSense"]
         self.device = args.base_config["device"]
         self.modalities = args.data_config["modalities"]
         # self.locations = args.dataset_config["location_names"]
