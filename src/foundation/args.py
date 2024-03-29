@@ -46,20 +46,25 @@ data_config = {'modalities': ['ecg', 'hr'],
 # For Focal Loss
 
 focal_config = {'backbone': 
-                          {'DeepSense': {'kernel_size': 3,
-                                         'stride': 1,
-                                         'padding': 1,
+                          {'DeepSense': {'mod1_kernel_size': 11,
+                                         'mod1_stride': 3,
+                                         'mod1_padding': 0,
+                                         'mod2_kernel_size': 3,
+                                         'mod2_stride': 1,
+                                         'mod2_padding': 1,
                                          'num_conv_layers': 2,
-                                         'conv_dim': 128,
+                                         'conv_dim': 64,
                                          'num_recurrent_layers': 2,
-                                         'recurrent_dim': 256,
-                                         'hidden_dim': 128,
+                                         'recurrent_dim': 64,
+                                         'hidden_dim': 64,
+                                         'mod1_linear_dim': 17920,
+                                         'mod2_linear_dim': 1920,
                                          'num_classes': 5, # in SSL -> Embedding Dimension / in Supervised -> Number of Classes
                                          'fc_dim': 64
                                          }
                              },
                 'tag': 'usePrivate', # 'noPrivate' for not using private loss
-                'embedding_dim': 256,
+                'embedding_dim': 64,
                 'num_subjects': 100,
                 'dropout_rate': 0.5,
                 'lr': 0.001,

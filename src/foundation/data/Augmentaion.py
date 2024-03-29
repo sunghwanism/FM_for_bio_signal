@@ -38,8 +38,11 @@ class GaussianNoise(nn.Module):
         
     def forward(self, loc_inputs):
         
-        noise_stds = torch.rand(loc_inputs.size(0), 1, 1) * self.max_noise_std
+        # print(loc_inputs.size())
+        noise_stds = torch.rand(loc_inputs.size(0), 1) * self.max_noise_std
+        # print(noise_stds.size())
         noise = torch.randn_like(loc_inputs) * noise_stds
+        # print(noise.size())
 
         return loc_inputs + noise
 
