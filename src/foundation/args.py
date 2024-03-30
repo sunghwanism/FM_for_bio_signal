@@ -10,7 +10,9 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
 data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
 
-
+# root_dir = "/NFS/Users/moonsh/FM_biosignal"
+# data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
+SEED = 42
 ################################################################################
 # General Arguments
 """
