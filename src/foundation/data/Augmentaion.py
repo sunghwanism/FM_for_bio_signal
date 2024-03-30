@@ -4,6 +4,16 @@ import numpy as np
 
 from random import random
 
+import args
+import sys
+sys.path.append("../")
+
+torch.manual_seed(args.SEED)
+torch.cuda.manual_seed(args.SEED)
+torch.cuda.manual_seed_all(args.SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 
 def init_augmenter(augmenter_name, augmenter_config):
     # augmenter_name = args.data_config['augmenter']
