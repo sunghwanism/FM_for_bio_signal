@@ -36,7 +36,7 @@ base_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' 
 
 data_config = {'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
-               'augmenter': 'GaussianNoise', # 'NoAug', 'GaussianNoise', "AmplitudeScale"
+               'augmentation': ['GaussianNoise', 'AmplitudeScale'],
                'augmenter_config': {
                    'GaussianNoise': {'max_noise_std': 0.1},
                    'AmplitudeScale': {'amplitude_scale': 0.5}
@@ -80,11 +80,12 @@ focal_config = {'backbone':
 ################################################################################
 # For Subject Invariant Loss
 
-subj_invariant_config = {
-    
+subj_invariant_config = {'embedding_dim': 64,
+                         'num_subjects': 100,
+                         'dropout_rate': 0.5,
+                         'adversarial_weighting_factor': 0.1,
+                         'lr': 0.001,
                          'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-    
                          }
 
 

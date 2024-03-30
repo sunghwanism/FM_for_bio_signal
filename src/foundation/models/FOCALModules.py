@@ -27,7 +27,7 @@ class FOCAL(nn.Module):
         # build encoders
         self.backbone = backbone
 
-    def forward(self, aug1_mod1, aug1_mod2, aug2_mod1, aug2_mod2, proj_head=False):
+    def forward(self, aug1_mod1, aug1_mod2, aug2_mod1, aug2_mod2, proj_head=True):
         """
         Input:
             aug1_mod1: augmented_1 input of the first modality.
