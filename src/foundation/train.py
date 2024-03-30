@@ -26,8 +26,13 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
     
     trainer_config = args.trainer_config
     
-    aug_1 = init_augmenter(args.base_config['augmentation'][0])
-    aug_2 = init_augmenter(args.base_config['augmentation'][1])
+    aug_1_name = args.data_config['augmentation'][0]
+    aug_1_config = args.data_config['augmenter_config'].get(aug_1_name, {})
+    aug_2_name = args.data_config['augmentation'][1]
+    aug_2_config = args.data_config['augmenter_config'].get(aug_2_name, {})
+    
+    aug_1 = init_augmenter(aug_1_name, aug_1_config)
+    aug_2 = init_augmenter(aug_2_name, aug_2_config)
     
     model.train()
     best_val_loss = float('inf')
@@ -203,8 +208,8 @@ def main():
 
     print("Loading the Focal Model")
     
-    # AdversarialModel = AdversarialModel(embedding_dim, num_subjects, dropout_rate=0.5).to(args.subj_invariant_config["device"])
-    # advs_optimizer = torch.optim.Adam(AdversarialModel.parameters(), lr=args.lr)
+    advs_model = AdversarialModel(args).to(args.subj_invariant_config["device"])
+    advs_optimizer = torch.optim.Adam(advs_model.parameters(), lr=args.subj_invariant_config['lr'])
     print("Complete Loading the Adversarial Model")
     
     

@@ -5,9 +5,9 @@ import numpy as np
 from random import random
 
 
-def init_augmenter(args):
-    augmenter_name = args.data_config['augmenter']
-    augmenter_config = args.data_config['augmenter_config'].get(augmenter_name, {})
+def init_augmenter(augmenter_name, augmenter_config):
+    # augmenter_name = args.data_config['augmenter']
+    # augmenter_config = args.data_config['augmenter_config'].get(augmenter_name, {})
 
     if augmenter_name == "GaussianNoise":
         print("Loading GaussianNoise augmenter...")
@@ -17,7 +17,7 @@ def init_augmenter(args):
         return AmplitudeScale(**augmenter_config)
     elif augmenter_name == "NoAugmenter":
         print("Loading NoAugmenter augmenter...")
-        return NoAugmenter(args)
+        return NoAugmenter()
     else:
         raise NotImplementedError
 
