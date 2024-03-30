@@ -24,9 +24,9 @@ data_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' 
 
 
 pretrain_config = {'epoch': 100,
-                   'batch_size': 5000,
+                   'batch_size': 3000,
                    'optimizer': 'Adam',
-                   'lr': 0.0001,
+                   'lr': 0.001,
                    'weight_decay': 0.0001,
                    'model_save_dir': os.path.join(root_dir, 'checkpoints'),
                    'val_freq': 1,
@@ -70,14 +70,15 @@ focal_config = {'backbone':
                                          'mod2_stride': 1,
                                          'mod2_padding': 1,
                                          'num_conv_layers': 2,
-                                         'conv_dim': 64,
+                                         'conv_dim': 256,
                                          'num_recurrent_layers': 2,
                                          'recurrent_dim': 64,
-                                         'hidden_dim': 64,
+                                         'hidden_dim': 256, # same with conv_dim
                                          'mod1_linear_dim': 17920,
                                          'mod2_linear_dim': 1920,
                                          'num_classes': 4, # in SSL -> Embedding Dimension / in Supervised -> Number of Classes
-                                         'fc_dim': 64
+                                         'fc_dim': 64,
+                                         'class_in_dim': 1234 # need to change
                                          }
                              },
                 'tag': 'usePrivate', # 'noPrivate' for not using private loss

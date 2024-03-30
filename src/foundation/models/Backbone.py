@@ -130,7 +130,7 @@ class DeepSense(nn.Module):
             # print(f"{mod} recurrent layer is initialized.")
             
         
-        self.class_layer = nn.Sequential(nn.Linear(19840, self.config["fc_dim"]), # to-do : change the number
+        self.class_layer = nn.Sequential(nn.Linear(self.config["class_in_dim"], self.config["fc_dim"]), # to-do : change the number
                                         nn.GELU(),
                                         nn.Linear(self.config["fc_dim"], self.config["num_classes"]))
         
