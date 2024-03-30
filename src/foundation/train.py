@@ -41,8 +41,8 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
         running_advs_train_loss = 0
         focal_train_loss = 0
         
-        for raw_modal_1, raw_modal_2, subj_label in train_loader:
-            raw_modal_1, raw_modal_2, subj_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device) # [B, 30], [B, 30*256], [B, 1]
+        for raw_modal_1, raw_modal_2, subj_label, sleep_label in train_loader:
+            raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device) # [B, 30], [B, 30*256], [B, 1]
             
             aug_1_modal_1 = aug_1(raw_modal_1)
             aug_2_modal_1 = aug_2(raw_modal_1)
@@ -65,10 +65,10 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             
             
             # Predict the subject
-            subj_preds = advs_model(enc_modal_1, enc_modal_2) 
-            # or subj_preds = advs_model(enc_feature_1['ecg'], enc_feature_1['hr], enc_feature_2['ecg'], enc_feature_2['hr'])
+            subj_pred = advs_model(enc_feature_1, enc_feature_2) 
+            # or subj_pred = advs_model(enc_feature_1['ecg'], enc_feature_1['hr], enc_feature_2['ecg'], enc_feature_2['hr'])
             
-            advs_loss = advs_model.forward_adversarial_loss(subj_preds, subj_label)
+            advs_loss = advs_model.forward_adversarial_loss(subj_pred, subj_label)
             
             # To-do for calculating the accuracy
             # num_adversary_correct_train_preds += adversarial_loss_fn.get_number_of_correct_preds(x_t1_initial_subject_preds, y)
@@ -80,7 +80,7 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             running_advs_train_loss += advs_loss.item()
             
             # For efficient memory management
-            del enc_modal_1, enc_modal_2, subj_preds, advs_loss
+            del enc_modal_1, enc_modal_2, subj_pred, advs_loss
             
             # For updating the only Focal model (SSL model)
             for param in model.parameters():
@@ -94,7 +94,7 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             
             x1_embd, x2_embd = model.encoder(raw_modal_1, raw_modal_2)
             subj_pred = advs_model(x1_embd, x2_embd)
-            subj_invariant_loss = advs_model.forward_subject_invariance_loss(subj_pred, subj_labels, args.adversarial_weighting_factor) # DONE -> add subject_invariant function loss
+            subj_invariant_loss = advs_model.forward_subject_invariance_loss(subj_pred, subj_label, args.subj_invariant_config['adversarial_weighting_factor']) # DONE -> add subject_invariant function loss
             
             focal_loss = focal_loss_fn(x1_represent, x2_represent, subj_invariant_loss) # To-Do -> add regularization term about subject invariant
             focal_loss.backward()
@@ -117,16 +117,16 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
                 advs_val_loss = 0
                 focal_val_loss = 0
                 
-                for raw_modal_1, raw_modal_2, subj in val_loader:
-                    raw_modal_1, raw_modal_2, subj = raw_modal_1.to(device), raw_modal_2.to(device), subj.to(device)
+                for raw_modal_1, raw_modal_2, subj_label, sleep_label in val_loader:
+                    raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device)
                     
                     with torch.no_grad():
                         x1_represent, x2_represent = model(raw_modal_1, raw_modal_2)
                         x1_embd, x2_embd = model.encoder(raw_modal_1), model.encoder(raw_modal_2)
                         subj_pred = advs_model(x1_embd, x2_embd) # output -> sigmoid value
                         
-                        advs_loss = advs_model.loss_fcn(subj_pred, subj)
-                        focal_loss = focal_loss_fn(x1_represent, x2_represent, subj_pred, subj)
+                        advs_loss = advs_model.loss_fcn(subj_pred, subj_label)
+                        focal_loss = focal_loss_fn(x1_represent, x2_represent, subj_pred, subj_label)
                         
                         advs_val_loss += advs_loss.item()
                         focal_val_loss += focal_loss.item()
@@ -224,7 +224,7 @@ def main():
     # focal_loss_fn = FOCALLoss(args)
     print("Complete Loading the FOCAL Model")
     
-    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     print("Start Training SA Focal Model")
     
