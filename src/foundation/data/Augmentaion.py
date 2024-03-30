@@ -4,6 +4,16 @@ import numpy as np
 
 from random import random
 
+import args
+import sys
+sys.path.append("../")
+
+torch.manual_seed(args.SEED)
+torch.cuda.manual_seed(args.SEED)
+torch.cuda.manual_seed_all(args.SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 
 def init_augmenter(augmenter_name, augmenter_config):
     # augmenter_name = args.data_config['augmenter']
@@ -37,12 +47,9 @@ class GaussianNoise(nn.Module):
         self.max_noise_std = max_noise_std
         
     def forward(self, loc_inputs):
-        
-        # print(loc_inputs.size())
-        noise_stds = torch.rand(loc_inputs.size(0), 1) * self.max_noise_std
-        # print(noise_stds.size())
+        device = loc_inputs.device
+        noise_stds = torch.rand(loc_inputs.size(0), 1, device=device) * self.max_noise_std
         noise = torch.randn_like(loc_inputs) * noise_stds
-        # print(noise.size())
 
         return loc_inputs + noise
 
@@ -53,8 +60,9 @@ class AmplitudeScale(nn.Module):
         self.amplitude_scale = amplitude_scale
 
     def forward(self, loc_inputs):
+        device = loc_inputs.device
         batch_size = loc_inputs.shape[0]
-        amplitude_scale = torch.rand(batch_size) * self.amplitude_scale + 1
+        amplitude_scale = torch.rand(batch_size, device=device) * self.amplitude_scale + 1
         loc_inputs = loc_inputs * amplitude_scale.view(-1, 1)
         
         return  loc_inputs

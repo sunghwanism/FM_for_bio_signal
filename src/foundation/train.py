@@ -20,6 +20,13 @@ import datetime
 
 from data.Augmentaion import init_augmenter
 
+torch.manual_seed(args.SEED)
+torch.cuda.manual_seed(args.SEED)
+torch.cuda.manual_seed_all(args.SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
+
 def train_SA_Focal(train_loader, val_loader, model, advs_model, 
                    optimizer, advs_optimizer, focal_loss_fn, device, args):
     

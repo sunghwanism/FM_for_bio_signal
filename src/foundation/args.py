@@ -7,18 +7,20 @@ import torch
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Set the root directory
-root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
-data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
+# root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
+# data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
 
-
+root_dir = "/NFS/Users/moonsh/FM_biosignal"
+data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
+SEED = 42
 ################################################################################
 # General Arguments
 """
 Modalities = 'hr', 'ecg', 'activity'
 """
 
-base_config = {'train_data_dir': os.path.join(data_dir, 'pair_small'), # 'pair' is real train data
-               'val_data_dir': os.path.join(data_dir, 'pair'),
+base_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' is real train data
+               'val_data_dir': os.path.join(data_dir, 'pair_val'),
                'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',

@@ -1,5 +1,15 @@
 import torch.nn as nn
+import torch
 
+import sys
+sys.path.append("../")
+import args
+
+torch.manual_seed(args.SEED)
+torch.cuda.manual_seed(args.SEED)
+torch.cuda.manual_seed_all(args.SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 class FOCAL(nn.Module):
     def __init__(self, args, backbone):
