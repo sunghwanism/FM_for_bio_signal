@@ -65,7 +65,7 @@ focal_config = {'backbone':
                              },
                 'tag': 'usePrivate', # 'noPrivate' for not using private loss
                 'embedding_dim': 64,
-                'num_subjects': 100,
+                'num_subjects': 4,
                 'dropout_rate': 0.5,
                 'lr': 0.001,
                 'shared_contrastive_loss_weight': 0.5,
@@ -79,7 +79,7 @@ focal_config = {'backbone':
 # For Subject Invariant Loss
 
 subj_invariant_config = {'embedding_dim': 64,
-                         'num_subjects': 100,
+                         'num_subjects': 4,
                          'dropout_rate': 0.5,
                          'adversarial_weighting_factor': 0.1,
                          'lr': 0.001,
