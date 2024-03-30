@@ -20,7 +20,7 @@ Modalities = 'hr', 'ecg', 'activity'
 """
 
 base_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' is real train data
-               'val_data_dir': os.path.join(data_dir, 'pair_valid'),
+               'val_data_dir': os.path.join(data_dir, 'pair_val'),
                'test_data_dir': os.path.join(data_dir, 'pair_test'),
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
@@ -55,19 +55,19 @@ focal_config = {'backbone':
                                          'mod2_stride': 1,
                                          'mod2_padding': 2,
                                          'num_conv_layers': 2,
-                                         'conv_dim': 256,
+                                         'conv_dim': 128,
                                          'num_recurrent_layers': 2,
-                                         'recurrent_dim': 64,
+                                         'recurrent_dim': 128,
                                          'hidden_dim': 128, # should be same with conv_dim
-                                         'mod1_linear_dim': 17920,
-                                         'mod2_linear_dim': 1920,
+                                         'mod1_linear_dim': 35840,
+                                         'mod2_linear_dim': 3840,
                                          'num_classes': 5, # in SSL -> Embedding Dimension / in Supervised -> Number of Classes
                                          'fc_dim': 128,
                                          'class_in_dim': 1980,
                                          }
                              },
                 'tag': 'usePrivate', # 'noPrivate' for not using private loss
-                'embedding_dim': 64,
+                'embedding_dim': 128,
                 'num_subjects': 100,
                 'dropout_rate': 0.5,
                 'lr': 0.001,
@@ -83,7 +83,7 @@ focal_config = {'backbone':
 ################################################################################
 # For Subject Invariant Loss
 
-subj_invariant_config = {'embedding_dim': 64,
+subj_invariant_config = {'embedding_dim': 128,
                          'num_subjects': 100,
                          'dropout_rate': 0.5,
                          'adversarial_weighting_factor': 0.1,
@@ -101,5 +101,3 @@ trainer_config = {'batch_size': 1024,
                   'val_interval': 10,
                   'model_save_dir': os.path.join(root_dir, 'checkpoints'),
 }
-
-
