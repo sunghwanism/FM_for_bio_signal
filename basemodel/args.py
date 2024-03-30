@@ -24,7 +24,7 @@ data_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' 
 
 
 pretrain_config = {'epoch': 100,
-                   'batch_size': 3000,
+                   'batch_size': 4000,
                    'optimizer': 'Adam',
                    'lr': 0.001,
                    'weight_decay': 0.0001,
@@ -66,19 +66,19 @@ focal_config = {'backbone':
                           {'DeepSense': {'mod1_kernel_size': 11,
                                          'mod1_stride': 3,
                                          'mod1_padding': 0,
-                                         'mod2_kernel_size': 3,
+                                         'mod2_kernel_size': 5,
                                          'mod2_stride': 1,
-                                         'mod2_padding': 1,
+                                         'mod2_padding': 2,
                                          'num_conv_layers': 2,
-                                         'conv_dim': 256,
+                                         'conv_dim': 128,
                                          'num_recurrent_layers': 2,
                                          'recurrent_dim': 64,
-                                         'hidden_dim': 256, # same with conv_dim
+                                         'hidden_dim': 128, # same with conv_dim
                                          'mod1_linear_dim': 17920,
                                          'mod2_linear_dim': 1920,
                                          'num_classes': 4, # in SSL -> Embedding Dimension / in Supervised -> Number of Classes
                                          'fc_dim': 64,
-                                         'class_in_dim': 1234 # need to change
+                                         'class_in_dim': 19840 # need to change
                                          }
                              },
                 'tag': 'usePrivate', # 'noPrivate' for not using private loss
