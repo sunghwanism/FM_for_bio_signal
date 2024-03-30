@@ -8,11 +8,11 @@ class FOCALLoss(nn.Module):
     def __init__(self, args):
         super(FOCALLoss, self).__init__()
         self.config = args.focal_config
-        self.modalities = args.base_config["modalities"] # return example ['ecg', 'hr']
+        self.modalities = args.data_config["modalities"] # return example ['ecg', 'hr']
         self.criterion = nn.CrossEntropyLoss(reduction="mean")
         self.similarity_f = nn.CosineSimilarity(dim=-1)
         self.orthonal_loss_f = nn.CosineEmbeddingLoss(reduction="mean")
-    
+        self.temperature = self.config["temperature"]
         # # decide the temperature
         # if isinstance(self.config["temperature"], dict):
         #     self.temperature = self.config["temperature"][args.model]
@@ -31,8 +31,8 @@ class FOCALLoss(nn.Module):
         else:
             """Extract [2N, 2N-2] negative locations from [2N, 2N] matrix, output: [seq, B, B]"""
             N = 2 * batch_size
-            diag_mat = torch.eye(batch_size).to(self.config.device)
-            mask = torch.ones((N, N)).to(self.config.device)
+            diag_mat = torch.eye(batch_size).to(self.config['device'])
+            mask = torch.ones((N, N)).to(self.config['device'])
 
             mask = mask.fill_diagonal_(0)
             mask[0:batch_size, batch_size : 2 * batch_size] -= diag_mat
@@ -116,9 +116,10 @@ class FOCALLoss(nn.Module):
             (4) Compute orthogonality loss beween shared-private and private-private representations.
             (5) For each subsequence, compute the temporal correlation loss.
         """
-        seq_len = self.config.dataset_config["seq_len"]
+        seq_len = self.config["seq_len"]
         
-        # Step 0: Reshape features
+        # Step 0: Reshape features 
+        # B, dim -> B, seq, dim
         reshaped_mod_features1, reshaped_mod_features2 = {}, {}
         for mod in self.modalities:
             reshaped_mod_features1[mod] = mod_features1[mod].reshape(-1, seq_len, mod_features1[mod].shape[-1])
@@ -130,22 +131,22 @@ class FOCALLoss(nn.Module):
 
         # Step 2: shared space contrastive loss
         shared_contrastive_loss = 0
-        if self.config.tag == "noPrivate":
-            for mod_features in [reshaped_mod_features1, reshaped_mod_features2]:
-                for i, mod1 in enumerate(self.modalities):
-                    for mod2 in self.modalities[i + 1 :]:
-                        shared_contrastive_loss += self.forward_contrastive_loss(
-                            mod_features[mod1],
-                            mod_features[mod2],
-                        )
-        else:
-            for split_mod_features in [split_mod_features1, split_mod_features2]:
-                for i, mod1 in enumerate(self.modalities):
-                    for mod2 in self.modalities[i + 1 :]:
-                        shared_contrastive_loss += self.forward_contrastive_loss(
-                            split_mod_features[mod1]["shared"],
-                            split_mod_features[mod2]["shared"],
-                        )
+        # if self.config.tag == "noPrivate":
+        #     for mod_features in [reshaped_mod_features1, reshaped_mod_features2]:
+        #         for i, mod1 in enumerate(self.modalities):
+        #             for mod2 in self.modalities[i + 1 :]:
+        #                 shared_contrastive_loss += self.forward_contrastive_loss(
+        #                     mod_features[mod1],
+        #                     mod_features[mod2],
+        #                 )
+        # else:
+        for split_mod_features in [split_mod_features1, split_mod_features2]:
+            for i, mod1 in enumerate(self.modalities):
+                for mod2 in self.modalities[i + 1 :]:
+                    shared_contrastive_loss += self.forward_contrastive_loss(
+                        split_mod_features[mod1]["shared"],
+                        split_mod_features[mod2]["shared"],
+                    )
 
         # Step 3: private space contrastive loss
         private_contrastive_loss = 0
@@ -175,7 +176,7 @@ class FOCALLoss(nn.Module):
         loss = (
             shared_contrastive_loss * self.config["shared_contrastive_loss_weight"]
             + private_contrastive_loss * self.config["private_contrastive_loss_weight"]
-            + orthogonality_loss * self.config["orthogonal_loss_weight"]
+            + orthogonality_loss * self.config["orthogonality_loss_weight"]
             + subject_invariance_loss * self.config["subject_invariant_loss_weight"]
         )
         
