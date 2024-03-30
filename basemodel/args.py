@@ -24,9 +24,9 @@ data_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' 
 
 
 pretrain_config = {'epoch': 100,
-                   'batch_size': 4096,
+                   'batch_size': 5000,
                    'optimizer': 'Adam',
-                   'lr': 0.001,
+                   'lr': 0.0001,
                    'weight_decay': 0.0001,
                    'model_save_dir': os.path.join(root_dir, 'checkpoints'),
                    'val_freq': 1,
