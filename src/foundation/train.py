@@ -17,18 +17,16 @@ from data.Dataset import MESAPairDataset
 from data.EfficientDataset import MESAPairDataset
 import datetime
 
-
 from data.Augmentaion import init_augmenter
 
-torch.manual_seed(args.SEED)
-torch.cuda.manual_seed(args.SEED)
-torch.cuda.manual_seed_all(args.SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-
-
-def train_SA_Focal(train_loader, val_loader, model, advs_model, 
+def train_SA_Focal(train_loader, valid_loader, model, advs_model, 
                    optimizer, advs_optimizer, focal_loss_fn, device, args):
+    
+    torch.manual_seed(args.SEED)
+    torch.cuda.manual_seed(args.SEED)
+    torch.cuda.manual_seed_all(args.SEED)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
     
     trainer_config = args.trainer_config
     
@@ -112,18 +110,18 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             del enc_feature_1, enc_feature_2, subj_pred, focal_loss, advs_loss
             torch.cuda.empty_cache()
             
-        if ep % args.log_interval == 0:
+        if ep % trainer_config['log_interval'] == 0:
             print(f"Epoch {ep} - Adversarial Loss: {running_advs_train_loss/ len(train_loader)}, \
                 Focal Loss: {focal_train_loss/ len(train_loader)}")
             
-            if ep % args.val_interval == 0:
+            if ep % trainer_config['val_interval'] == 0:
                 model.eval()
                 advs_model.eval()
                 
                 advs_val_loss = 0
                 focal_val_loss = 0
                 
-                for raw_modal_1, raw_modal_2, subj_label, sleep_label in val_loader:
+                for raw_modal_1, raw_modal_2, subj_label, sleep_label in valid_loader:
                     raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device)
                     
                     aug_1_modal_1, aug_2_modal_1  = aug_1(raw_modal_1), aug_2(raw_modal_1)
@@ -145,8 +143,8 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
                         torch.cuda.empty_cache()
                         
                 print("-----"*10)
-                print(f"(Validation) Epoch{ep} - Adversarial Loss: {advs_val_loss/ len(val_loader)}, \
-                    Focal Loss: {focal_val_loss/ len(val_loader)}")                    
+                print(f"(Validation) Epoch{ep} - Adversarial Loss: {advs_val_loss/ len(valid_loader)}, \
+                    Focal Loss: {focal_val_loss/ len(valid_loader)}")                    
                                 
                 if focal_val_loss < best_val_loss:
                     best_val_loss = focal_val_loss
@@ -247,5 +245,6 @@ def main():
     
     
 if __name__ == '__main__':
+
     
     main()
