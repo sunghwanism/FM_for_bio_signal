@@ -8,8 +8,9 @@ class AdversarialModel(nn.Module):
         embedding_dim = args.subj_invariant_config['embedding_dim']
         num_subjects = args.subj_invariant_config['num_subjects']
         dropout_rate = args.subj_invariant_config['dropout_rate']
+        self.modalities = args.data_config['modalities']
         
-        self.fc = nn.Linear(embedding_dim * 2, embedding_dim)  # Assuming concatenation of embeddings
+        self.fc = nn.Linear(embedding_dim * 4, embedding_dim)  # Assuming concatenation of embeddings
         self.model = nn.Sequential(
             nn.Linear(embedding_dim, embedding_dim // 2),
             nn.ReLU(),
@@ -25,13 +26,19 @@ class AdversarialModel(nn.Module):
         )
 
     def forward(self, embeddings1, embeddings2):
-        combined_embeddings = torch.cat((embeddings1, embeddings2), dim=1)
+        embeddings1_mod1 = embeddings1[self.modalities[0]] # B, embedding_dim
+        embeddings1_mod2 = embeddings1[self.modalities[1]] # B, embedding_dim
+        embeddings2_mod1 = embeddings2[self.modalities[0]] # B, embedding_dim
+        embeddings2_mod2 = embeddings2[self.modalities[1]] # B, embedding_dim
+        
+        combined_embeddings = torch.cat((embeddings1_mod1, embeddings1_mod2, embeddings2_mod1, embeddings2_mod2), dim=1)
         embedding = self.fc(combined_embeddings)
         return self.model(embedding)
 
     def forward_adversarial_loss(self, subject_preds, subject_labels):
         subject_outs = F.normalize(subject_preds, p=2, dim=1)
-
+        print(subject_outs.shape)
+        
         BATCH_DIM = 0
         log_noise = 1e-12
         adversarial_loss = 0.
