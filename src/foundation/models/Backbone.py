@@ -65,7 +65,6 @@ class DeepSense(nn.Module):
             dims.append(1)
             dims.reverse()
         
-        
         for mod in self.modalities:
             if mod == "ecg":
                 if self.config["num_conv_layers"] is None:
@@ -117,7 +116,7 @@ class DeepSense(nn.Module):
                     self.modality_extractors[mod] = nn.Sequential(*conv_blocks)
                     
             
-            # sprint(f"{mod} extractor is initialized.")
+            # print(f"{mod} extractor is initialized.")
                     
         # Setting GRU
         
@@ -130,7 +129,7 @@ class DeepSense(nn.Module):
             # print(f"{mod} recurrent layer is initialized.")
             
         
-        self.class_layer = nn.Sequential(nn.Linear(self.config["class_in_dim"], self.config["fc_dim"]), # to-do : change the number
+        self.class_layer = nn.Sequential(nn.Linear(self.config["class_in_dim"], self.config["fc_dim"]),
                                         nn.GELU(),
                                         nn.Linear(self.config["fc_dim"], self.config["num_classes"]))
         

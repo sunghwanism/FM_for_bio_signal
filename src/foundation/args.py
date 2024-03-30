@@ -20,8 +20,8 @@ Modalities = 'hr', 'ecg', 'activity'
 """
 
 base_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' is real train data
-               'val_data_dir': os.path.join(data_dir, 'pair_val'),
-               'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
+               'valid_data_dir': os.path.join(data_dir, 'pair_valid'),
+               'test_data_dir': os.path.join(data_dir, 'pair_test',),
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
                'subject_key': 'subject_idx',
@@ -51,18 +51,19 @@ focal_config = {'backbone':
                           {'DeepSense': {'mod1_kernel_size': 11,
                                          'mod1_stride': 3,
                                          'mod1_padding': 0,
-                                         'mod2_kernel_size': 3,
+                                         'mod2_kernel_size': 5,
                                          'mod2_stride': 1,
-                                         'mod2_padding': 1,
+                                         'mod2_padding': 2,
                                          'num_conv_layers': 2,
-                                         'conv_dim': 64,
+                                         'conv_dim': 256,
                                          'num_recurrent_layers': 2,
                                          'recurrent_dim': 64,
-                                         'hidden_dim': 64,
+                                         'hidden_dim': 128, # should be same with conv_dim
                                          'mod1_linear_dim': 17920,
                                          'mod2_linear_dim': 1920,
                                          'num_classes': 5, # in SSL -> Embedding Dimension / in Supervised -> Number of Classes
-                                         'fc_dim': 64
+                                         'fc_dim': 128,
+                                         'class_in_dim': 1980,
                                          }
                              },
                 'tag': 'usePrivate', # 'noPrivate' for not using private loss
@@ -91,12 +92,10 @@ subj_invariant_config = {'embedding_dim': 64,
                          }
 
 
-
-
 ################################################################################
 # Trainer Arguments
 
-trainer_config = {'batch_size': 256,
+trainer_config = {'batch_size': 1024,
                   'epochs': 100,
                   'log_interval': 5,
                   'val_interval': 10,
