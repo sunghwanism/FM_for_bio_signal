@@ -20,8 +20,8 @@ Modalities = 'hr', 'ecg', 'activity'
 """
 
 base_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' is real train data
-               'valid_data_dir': os.path.join(data_dir, 'pair_valid'),
-               'test_data_dir': os.path.join(data_dir, 'pair_test',),
+               'val_data_dir': os.path.join(data_dir, 'pair_valid'),
+               'test_data_dir': os.path.join(data_dir, 'pair_test'),
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
                'subject_key': 'subject_idx',
