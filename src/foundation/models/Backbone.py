@@ -65,7 +65,7 @@ class DeepSense(nn.Module):
             dims.append(1)
             dims.reverse()
         
-        print(dims)
+        
         for mod in self.modalities:
             if mod == "ecg":
                 if self.config["num_conv_layers"] is None:
@@ -117,7 +117,7 @@ class DeepSense(nn.Module):
                     self.modality_extractors[mod] = nn.Sequential(*conv_blocks)
                     
             
-            print(f"{mod} extractor is initialized.")
+            # sprint(f"{mod} extractor is initialized.")
                     
         # Setting GRU
         
@@ -127,10 +127,10 @@ class DeepSense(nn.Module):
                                                         hidden_size=self.config["recurrent_dim"], 
                                                         num_layers=self.config["num_recurrent_layers"])
             
-            print(f"{mod} recurrent layer is initialized.")
+            # print(f"{mod} recurrent layer is initialized.")
             
         
-        self.class_layer = nn.Sequential(nn.Linear(self.sample_dim, self.config["fc_dim"]),
+        self.class_layer = nn.Sequential(nn.Linear(19840, self.config["fc_dim"]), # to-do : change the number
                                         nn.GELU(),
                                         nn.Linear(self.config["fc_dim"], self.config["num_classes"]))
         
@@ -174,7 +174,7 @@ class DeepSense(nn.Module):
         modality_1_features = self.modality_extractors[mod_name_1](mod1)
         modality_2_features = self.modality_extractors[mod_name_2](mod2)
         
-        print(f"mod1 cnn feature shape: {modality_1_features.shape}", f"mod2 cnn feature shape: {modality_2_features.shape}")
+        # print(f"mod1 cnn feature shape: {modality_1_features.shape}", f"mod2 cnn feature shape: {modality_2_features.shape}")
     
         # (Batch, Features, Length) -> (Batch, Length, Features)
         modality_1_features = modality_1_features.transpose(1,2)
@@ -185,7 +185,7 @@ class DeepSense(nn.Module):
         recurrent_2 = self.recurrent_layer[mod_name_2](modality_2_features).flatten(start_dim=1)
         
         
-        print(f"mod1 rnn feature shape: {recurrent_1.shape}", f"mod2 rnn feature shape: {recurrent_2.shape}")
+        # print(f"mod1 rnn feature shape: {recurrent_1.shape}", f"mod2 rnn feature shape: {recurrent_2.shape}")
         modality_features = [recurrent_1, recurrent_2]
         
         if not class_head:
