@@ -2,6 +2,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import sys
+sys.path.append("../")
+import args
+
+torch.manual_seed(args.SEED)
+torch.cuda.manual_seed(args.SEED)
+torch.cuda.manual_seed_all(args.SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding, drop_out=0.5):
         super(ConvBlock, self).__init__()
