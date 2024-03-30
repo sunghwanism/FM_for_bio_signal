@@ -182,12 +182,12 @@ def main():
     # Check the arguments
     time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     
-    logging.basicConfig(level=print,
-                    format='%(asctime)s %(levelname)s: %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filename=os.path.join(args.base_config["log_save_dir"], 
-                                          f'focal_subj_mesa_{time}.log'),
-                    filemode='a')
+    # logging.basicConfig(level=print,
+    #                 format='%(asctime)s %(levelname)s: %(message)s',
+    #                 datefmt='%Y-%m-%d %H:%M:%S',
+    #                 filename=os.path.join(args.base_config["log_save_dir"], 
+    #                                       f'focal_subj_mesa_{time}.log'),
+    #                 filemode='a')
     
     print_args(args)
 
@@ -238,7 +238,7 @@ def main():
     print("Start Training SA Focal Model")
     
     
-    output = train_SA_Focal(train_loader, val_loader, focal_model, AdversarialModel,
+    output = train_SA_Focal(train_loader, val_loader, focal_model, advs_model,
                             focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
     
     print("Finished Training SA Focal Model")
