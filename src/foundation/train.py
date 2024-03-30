@@ -9,6 +9,7 @@ import logging
 import torch
 from models.AdversarialModel import AdversarialModel
 from models.FOCALModules import FOCAL
+from models.loss import FOCALLoss
 from models.Backbone import DeepSense
 
 
@@ -24,7 +25,6 @@ torch.cuda.manual_seed(args.SEED)
 torch.cuda.manual_seed_all(args.SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
-
 
 
 def train_SA_Focal(train_loader, val_loader, model, advs_model, 
@@ -86,7 +86,7 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             running_advs_train_loss += advs_loss.item()
             
             # For efficient memory management
-            del enc_modal_1, enc_modal_2, subj_pred, advs_loss
+            del enc_feature_1, enc_feature_2, subj_pred, advs_loss
             
             # For updating the only Focal model (SSL model)
             for param in model.parameters():
@@ -109,7 +109,7 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
             focal_train_loss += focal_loss.item()
             
             # For efficient memory management
-            del x1_represent, x2_represent, x1_embd, x2_embd, subj_pred, focal_loss
+            del enc_feature_1, enc_feature_2, subj_pred, focal_loss, advs_loss
             torch.cuda.empty_cache()
             
         if ep % args.log_interval == 0:
@@ -126,19 +126,22 @@ def train_SA_Focal(train_loader, val_loader, model, advs_model,
                 for raw_modal_1, raw_modal_2, subj_label, sleep_label in val_loader:
                     raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device)
                     
+                    aug_1_modal_1, aug_2_modal_1  = aug_1(raw_modal_1), aug_2(raw_modal_1)
+                    aug_1_modal_2, aug_2_modal_2  = aug_1(raw_modal_2), aug_2(raw_modal_2)
+                    
                     with torch.no_grad():
-                        x1_represent, x2_represent = model(raw_modal_1, raw_modal_2)
-                        x1_embd, x2_embd = model.encoder(raw_modal_1), model.encoder(raw_modal_2)
-                        subj_pred = advs_model(x1_embd, x2_embd) # output -> sigmoid value
+                        # x1_represent, x2_represent = model(raw_modal_1, raw_modal_2)
+                        enc_feature_1, enc_feature_2 = model(aug_1_modal_1, aug_1_modal_2, aug_2_modal_1, aug_2_modal_2, proj_head=True)
+                        subj_pred = advs_model(enc_feature_1, enc_feature_2)
                         
-                        advs_loss = advs_model.loss_fcn(subj_pred, subj_label)
-                        focal_loss = focal_loss_fn(x1_represent, x2_represent, subj_pred, subj_label)
+                        advs_loss = advs_model.forward_adversarial_loss(subj_pred, subj_label)
+                        focal_loss = focal_loss_fn(enc_feature_1, enc_feature_2, subj_invariant_loss) # To-Do -> add regularization term about subject invariant
                         
                         advs_val_loss += advs_loss.item()
                         focal_val_loss += focal_loss.item()
                         
                         # For efficient memory management
-                        del x1_represent, x2_represent, x1_embd, x2_embd, subj_pred, focal_loss
+                        del enc_feature_1, enc_feature_2, subj_pred, focal_loss, advs_loss
                         torch.cuda.empty_cache()
                         
                 print("-----"*10)
@@ -181,12 +184,13 @@ def main():
     # Check the arguments
     time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     
-    # logging.basicConfig(level=print,
-    #                 format='%(asctime)s %(levelname)s: %(message)s',
-    #                 datefmt='%Y-%m-%d %H:%M:%S',
-    #                 filename=os.path.join(args.base_config["log_save_dir"], 
-    #                                       f'focal_subj_mesa_{time}.log'),
-    #                 filemode='a')
+    logging.basicConfig(level=print,
+                    format='%(asctime)s %(levelname)s: %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename=os.path.join(args.base_config["log_save_dir"], 
+                                          f'focal_subj_mesa_{time}.log'),
+                    filemode='a')
+    
     print_args(args)
 
     train_dataset = MESAPairDataset(file_path=args.base_config['train_data_dir'],
@@ -200,17 +204,17 @@ def main():
     
     print("Successfully Loaded Train Data")
 
-    # val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
-    #                                 modalities=args.base_config['modalities'],
-    #                                 subject_idx=args.base_config['subject_key'],
-    #                                 stage=args.base_config['label_key'])
+    val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
+                                    modalities=args.base_config['modalities'],
+                                    subject_idx=args.base_config['subject_key'],
+                                    stage=args.base_config['label_key'])
     
-    # val_loader = torch.utils.data.DataLoader(val_dataset,
-    #                                          batch_size=args.trainer_config['batch_size'],
-    #                                          shuffle=False,
-    #                                          num_workers=2)
+    val_loader = torch.utils.data.DataLoader(val_dataset,
+                                             batch_size=args.trainer_config['batch_size'],
+                                             shuffle=False,
+                                             num_workers=2)
     
-    # print("Successfully Loaded Validation Data")    
+    print("Successfully Loaded Validation Data")    
 
     print("Loading the Focal Model")
     
@@ -225,18 +229,19 @@ def main():
     else:
         raise ValueError("Not Supported Backbone")
     
-    FOCAL_Model = FOCAL(args, backbone).to(args.focal_config["device"])
-    focal_optimizer = torch.optim.Adam(FOCAL_Model.parameters(), lr=args.focal_config["lr"])
-    # focal_loss_fn = FOCALLoss(args)
+    focal_model = FOCAL(args, backbone).to(args.focal_config["device"])
+    focal_optimizer = torch.optim.Adam(focal_model.parameters(), lr=args.focal_config["lr"])
+    focal_loss_fn = FOCALLoss(args)
     print("Complete Loading the FOCAL Model")
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
     
     print("Start Training SA Focal Model")
     
     
-    # output = train_SA_Focal(train_loader, val_loader, FOCAL_Model, AdversarialModel,
-    #                         focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
+    output = train_SA_Focal(train_loader, val_loader, focal_model, AdversarialModel,
+                            focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
     
     print("Finished Training SA Focal Model")
     
