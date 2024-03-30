@@ -18,7 +18,7 @@ Modalities = 'hr', 'ecg', 'activity'
 """
 
 base_config = {'train_data_dir': os.path.join(data_dir, 'pair_small'), # 'pair' is real train data
-               'val_data_dir': os.path.join(data_dir, 'pair'),
+               'valid_data_dir': os.path.join(data_dir, 'pair_small_valid'),
                'test_data_dir': '/NFS/Users/moonsh/data/mesa/preproc/pair_test',
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
@@ -95,7 +95,7 @@ subj_invariant_config = {'embedding_dim': 64,
 # Trainer Arguments
 
 trainer_config = {'batch_size': 256,
-                  'epochs': 100,
+                  'epochs': 5,
                   'log_interval': 5,
                   'val_interval': 10,
                   'model_save_dir': os.path.join(root_dir, 'checkpoints'),

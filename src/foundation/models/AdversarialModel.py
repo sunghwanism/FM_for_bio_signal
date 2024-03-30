@@ -39,7 +39,6 @@ class AdversarialModel(nn.Module):
     def forward_adversarial_loss(self, subject_preds, subject_labels):
         subject_labels = F.one_hot(subject_labels, num_classes=self.num_subjects)
         subject_outs = F.normalize(subject_preds, p=2, dim=1)
-        print(subject_outs.shape)
         
         BATCH_DIM = 0
         log_noise = 1e-12
