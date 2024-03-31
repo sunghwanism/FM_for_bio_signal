@@ -112,8 +112,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
             torch.cuda.empty_cache()
             
         if ep % trainer_config['log_interval'] == 0:
-            print(f"Epoch {ep} - Adversarial Loss: {running_advs_train_loss/ len(train_loader)}, \
-                Focal Loss: {focal_train_loss/ len(train_loader)}")
+            print(f"Epoch {ep} - Adversarial Loss: {running_advs_train_loss/ len(train_loader)}, Focal Loss: {focal_train_loss/ len(train_loader)}")
             
             if ep % trainer_config['val_interval'] == 0:
                 model.eval()
@@ -141,7 +140,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
                         del enc_feature_1, enc_feature_2, subj_pred, focal_loss
                         torch.cuda.empty_cache()
                         
-                print("-----"*10)
+                print("-----"*20)
                 print(f"(Validation) Epoch{ep} - Focal Loss: {focal_val_loss/ len(valid_loader)}")                    
                                 
                 if focal_val_loss < best_val_loss:
@@ -151,7 +150,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
                     # torch.save(model.state_dict(), os.path.join(args.save_dir, 'focal_model.pth'))
                     # torch.save(advs_model.state_dict(), os.path.join(args.save_dir, 'advs_model.pth'))
                     print("************* Model Saved *************")
-                print("-----"*10)
+                print("-----"*20)
                 
 def print_args(args):
     
@@ -159,7 +158,6 @@ def print_args(args):
     for k, v in args.data_config.items():
         print(f"\t{k}: {v}")
     print("----------"*10)
-    
     
     print("Focal Configs:")
     for k, v in args.focal_config.items():
