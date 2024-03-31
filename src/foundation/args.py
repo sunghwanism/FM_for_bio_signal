@@ -92,3 +92,13 @@ trainer_config = {'batch_size': 1024,
                   'model_save_dir': os.path.join(root_dir, 'checkpoints'),
                   'log_save_dir': os.path.join(root_dir, 'logs')
 }
+
+model_save_format = {"train_acc": None,
+                     "val_acc": None,
+                     "train_loss": None,
+                     "val_loss": None,
+                     "epoch": None,
+                     "lr": None,
+                     "model_path": None,
+                     "model_state_dict": None,
+                     'batch_size': None}
