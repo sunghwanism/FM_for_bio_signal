@@ -101,7 +101,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
             enc_feature_1, enc_feature_2 = model(aug_1_modal_1, aug_1_modal_2, aug_2_modal_1, aug_2_modal_2, proj_head=True)
             
             subj_pred = advs_model(enc_feature_1, enc_feature_2) 
-            subj_invariant_loss = advs_model.forward_subject_invariance_loss(subj_pred, subj_label, args.subj_invariant_config['adversarial_weighting_factor']) # DONE -> add subject_invariant function loss
+            subj_invariant_loss = advs_model.forward_subject_invariance_loss(subj_pred, subj_label)
             
             focal_loss = focal_loss_fn(enc_feature_1, enc_feature_2, subj_invariant_loss) # To-Do -> add regularization term about subject invariant
             focal_loss.backward()
@@ -185,16 +185,16 @@ def main():
     # logging.basicConfig(level=print,
     #                 format='%(asctime)s %(levelname)s: %(message)s',
     #                 datefmt='%Y-%m-%d %H:%M:%S',
-    #                 filename=os.path.join(args.base_config["log_save_dir"], 
+    #                 filename=os.pat.join(args.base_config["log_save_dir"], 
     #                                       f'focal_subj_mesa_{time}.log'),
     #                 filemode='a')
     
     print_args(args)
 
-    train_dataset = MESAPairDataset(file_path=args.base_config['train_data_dir'],
-                                    modalities=args.base_config['modalities'],
-                                    subject_idx=args.base_config['subject_key'],
-                                    stage=args.base_config['label_key'])
+    train_dataset = MESAPairDataset(file_path=args.data_config['train_data_dir'],
+                                    modalities=args.data_config['modalities'],
+                                    subject_idx=args.data_config['subject_key'],
+                                    stage=args.data_config['label_key'])
     train_loader = torch.utils.data.DataLoader(train_dataset, 
                                                batch_size=args.trainer_config['batch_size'],
                                                shuffle=True,
@@ -202,15 +202,15 @@ def main():
     
     print("Successfully Loaded Train Data")
 
-    val_dataset = MESAPairDataset(file_path=args.base_config['val_data_dir'],
-                                    modalities=args.base_config['modalities'],
-                                    subject_idx=args.base_config['subject_key'],
-                                    stage=args.base_config['label_key'])
+    val_dataset = MESAPairDataset(file_path=args.data_config['val_data_dir'],
+                                    modalities=args.data_config['modalities'],
+                                    subject_idx=args.data_config['subject_key'],
+                                    stage=args.data_config['label_key'])
     
     val_loader = torch.utils.data.DataLoader(val_dataset,
                                              batch_size=args.trainer_config['batch_size']//3,
                                              shuffle=False,
-                                             num_workers=2)
+                                             num_workers=4)
     
     print("Successfully Loaded Validation Data")    
 
@@ -238,12 +238,11 @@ def main():
     print("Start Training SA Focal Model")
     
     
-    output = train_SA_Focal(train_loader, val_loader, focal_model, advs_model,
-                            focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
+    train_SA_Focal(train_loader, val_loader, focal_model, advs_model,
+                   focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
     
     print("Finished Training SA Focal Model")
     
     
 if __name__ == '__main__':
-    
     main()
