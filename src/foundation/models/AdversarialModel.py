@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class AdversarialModel(nn.Module):
     def __init__(self, args):
         super(AdversarialModel, self).__init__()
-        embedding_dim = args.subj_invariant_config['embedding_dim']
+        embedding_dim = args.focal_config['embedding_dim']
         num_subjects = args.subj_invariant_config['num_subjects']
         dropout_rate = args.subj_invariant_config['dropout_rate']
         self.modalities = args.data_config['modalities']
@@ -14,15 +14,11 @@ class AdversarialModel(nn.Module):
         self.fc = nn.Linear(embedding_dim * 4, embedding_dim)  # Assuming concatenation of embeddings
         self.model = nn.Sequential(
             nn.Linear(embedding_dim, embedding_dim // 2),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Dropout(dropout_rate),
-            nn.Linear(embedding_dim // 2, embedding_dim // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout_rate),
-            nn.Linear(embedding_dim // 2, embedding_dim // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout_rate),
-            nn.Linear(embedding_dim // 2, num_subjects),
+            nn.Linear(embedding_dim // 2, embedding_dim // 4),
+            nn.LeakyReLU(),
+            nn.Linear(embedding_dim // 4, num_subjects),
             nn.Sigmoid()  # Use Softmax for multi-class classification
         )
 

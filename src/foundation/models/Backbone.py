@@ -45,7 +45,7 @@ class DeepSense(nn.Module):
         
         self.args = args
         self.config = args.focal_config["backbone"]["DeepSense"]
-        self.device = args.base_config["device"]
+        self.device = args.focal_config["device"]
         self.modalities = args.data_config["modalities"]
         
         # Intialize the encoder
@@ -60,7 +60,7 @@ class DeepSense(nn.Module):
         num_layers = self.config["num_conv_layers"]
         if num_layers > 0:
             for i in range(num_layers):
-                dims.append(int(self.config["hidden_dim"]/2**(i+1)))
+                dims.append(int(self.config["conv_dim"]/2**(i+1)))
                 
             dims.append(1)
             dims.reverse()
@@ -73,6 +73,7 @@ class DeepSense(nn.Module):
                                                             kernel_size=self.config["mod1_kernel_size"], 
                                                             stride=self.config["mod1_stride"],
                                                             padding=self.config["mod1_padding"],
+                                                            drop_out=0
                                                             )
                 else:   
                     conv_blocks = []           
@@ -82,12 +83,14 @@ class DeepSense(nn.Module):
                                                     kernel_size=self.config["mod1_kernel_size"], 
                                                     stride=self.config["mod1_stride"],
                                                     padding=self.config["mod1_padding"],
+                                                    drop_out=self.config["conv_dropout_rate"],
                                                     ))
                     conv_blocks.append(ConvBlock(in_channels=int(self.config["conv_dim"]/2),
                                                 out_channels=self.config["conv_dim"],
                                                 kernel_size=self.config["mod1_kernel_size"],
                                                 stride=self.config["mod1_stride"],
                                                 padding=self.config["mod1_padding"],
+                                                drop_out=self.config["conv_dropout_rate"],
                                                 ))
                     self.modality_extractors[mod] = nn.Sequential(*conv_blocks)
             else:
@@ -97,6 +100,7 @@ class DeepSense(nn.Module):
                                                             kernel_size=self.config["mod2_ernel_size"], 
                                                             stride=self.config["mod2_stride"],
                                                             padding=self.config["mod2_padding"],
+                                                            drop_out=self.config["conv_dropout_rate"],
                                                             )
                 else:
                     conv_blocks = []           
@@ -106,12 +110,14 @@ class DeepSense(nn.Module):
                                                     kernel_size=self.config["mod2_kernel_size"], 
                                                     stride=self.config["mod2_stride"],
                                                     padding=self.config["mod2_padding"],
+                                                    drop_out=self.config["conv_dropout_rate"],
                                                     ))
                     conv_blocks.append(ConvBlock(in_channels=int(self.config["conv_dim"]/2),
                                                 out_channels=self.config["conv_dim"],
                                                 kernel_size=self.config["mod2_kernel_size"],
                                                 stride=self.config["mod2_stride"],
                                                 padding=self.config["mod2_padding"],
+                                                drop_out=self.config["conv_dropout_rate"],
                                                 ))
                     self.modality_extractors[mod] = nn.Sequential(*conv_blocks)
                     
@@ -141,6 +147,7 @@ class DeepSense(nn.Module):
             if mod == "ecg":
                 self.mod_projectors[mod] = nn.Sequential(
                 nn.Linear(self.config['mod1_linear_dim'], self.config["recurrent_dim"] * 2), # To-do: calculate the linear dim automatically
+                nn.Dropout(self.config["proj_dropout_rate"]),
                 nn.Linear(self.config["recurrent_dim"] * 2, out_dim),
                 nn.ReLU(),
                 nn.Linear(out_dim, out_dim),
@@ -148,6 +155,7 @@ class DeepSense(nn.Module):
             else:
                 self.mod_projectors[mod] = nn.Sequential(
                     nn.Linear(self.config['mod2_linear_dim'], self.config["recurrent_dim"] * 2), # To-do: calculate the linear dim automatically
+                    nn.Dropout(self.config["proj_dropout_rate"]),
                     nn.Linear(self.config["recurrent_dim"] * 2, out_dim),
                     nn.ReLU(),
                     nn.Linear(out_dim, out_dim),

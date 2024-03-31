@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-from general_utils.tensor_utils import extract_non_diagonal_matrix
 from models.FOCALModules import split_features
 
 class FOCALLoss(nn.Module):
@@ -13,11 +12,6 @@ class FOCALLoss(nn.Module):
         self.similarity_f = nn.CosineSimilarity(dim=-1)
         self.orthonal_loss_f = nn.CosineEmbeddingLoss(reduction="mean")
         self.temperature = self.config["temperature"]
-        # # decide the temperature
-        # if isinstance(self.config["temperature"], dict):
-        #     self.temperature = self.config["temperature"][args.model]
-        # else:
-        #     self.temperature = self.config["temperature"]
 
     def mask_correlated_samples(self, seq_len, batch_size, temporal=False):
         """
