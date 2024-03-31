@@ -14,10 +14,10 @@ class AdversarialModel(nn.Module):
         self.fc = nn.Linear(embedding_dim * 4, embedding_dim)  # Assuming concatenation of embeddings
         self.model = nn.Sequential(
             nn.Linear(embedding_dim, embedding_dim // 2),
-            nn.LekyReLU(),
+            nn.LeakyReLU(),
             nn.Dropout(dropout_rate),
             nn.Linear(embedding_dim // 2, embedding_dim // 4),
-            nn.LekyReLU(),
+            nn.LeakyReLU(),
             nn.Linear(embedding_dim // 4, num_subjects),
             nn.Sigmoid()  # Use Softmax for multi-class classification
         )
