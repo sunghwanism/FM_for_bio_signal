@@ -116,11 +116,7 @@ class FOCALLoss(nn.Module):
             (4) Compute orthogonality loss beween shared-private and private-private representations.
             (5) For each subsequence, compute the temporal correlation loss.
         """
-        seq_len = self.config["seq_len"]
-        
-        mod_features1 = mod_features1.reshape(1, seq_len, mod_features1.shape[-1])
-        mod_features1 = mod_features1.reshape(1, seq_len, mod_features1.shape[-1])
-        
+                
         # Step 1: split features into "shared" space and "private" space of each (mod, subsequence), # B, dim
         split_mod_features1 = split_features(mod_features1) # B, dim
         split_mod_features2 = split_features(mod_features2) # B, dim
