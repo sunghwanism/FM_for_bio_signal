@@ -4,7 +4,7 @@ import torch
 
 
 # Set CUDA for GPU usage
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 # Set the root directory
 # root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
@@ -70,7 +70,7 @@ focal_config = {'backbone':
                 'embedding_dim': 128,
                 'num_subjects': 100,
                 'dropout_rate': 0.5,
-                'lr': 0.001,
+                'lr': 0.0001,
                 'shared_contrastive_loss_weight': 0.5,
                 'private_contrastive_loss_weight': 0.5,
                 'orthogonality_loss_weight': 0.2,
@@ -87,7 +87,7 @@ subj_invariant_config = {'embedding_dim': 128,
                          'num_subjects': 100,
                          'dropout_rate': 0.5,
                          'adversarial_weighting_factor': 0.1,
-                         'lr': 0.001,
+                         'lr': 0.01,
                          'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu')
                          }
 
@@ -97,7 +97,7 @@ subj_invariant_config = {'embedding_dim': 128,
 
 trainer_config = {'batch_size': 1024,
                   'epochs': 100,
-                  'log_interval': 5,
-                  'val_interval': 10,
+                  'log_interval': 1,
+                  'val_interval': 1,
                   'model_save_dir': os.path.join(root_dir, 'checkpoints'),
 }
