@@ -32,13 +32,12 @@ def init_augmenter(augmenter_name, augmenter_config):
         raise NotImplementedError
 
 class NoAugmenter(nn.Module):
-    def __init__(self, args) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.args = args
         
-    def forward(self, loc_inputs, labels=None):
+    def forward(self, loc_inputs):
         
-        return loc_inputs, None, labels
+        return loc_inputs
     
     
 class GaussianNoise(nn.Module):

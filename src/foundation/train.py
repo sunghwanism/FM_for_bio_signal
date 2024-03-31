@@ -25,7 +25,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     
-    start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
     model_save_dir = args.trainer_config["model_save_dir"]
     model_save_dir = os.path.join(model_save_dir, start_time)
     
@@ -233,7 +233,7 @@ def main():
     val_loader = torch.utils.data.DataLoader(val_dataset,
                                              batch_size=args.trainer_config['batch_size']//3,
                                              shuffle=False,
-                                             num_workers=4)
+                                             num_workers=2)
     
     print("****** Successfully Dataset ******")    
     

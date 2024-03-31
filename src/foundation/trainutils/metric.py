@@ -59,5 +59,5 @@ def save_metrics(train_focal_losses, val_focal_losses, train_accuracies, train_a
     ax[2].legend()
 
     plt.suptitle(f"Focal SSL Learning Curve")
-    plt.savefig(f'../asset/SSL_focal_Learning_Curve_{time}.png')    
+    plt.savefig(f'./asset/SSL_focal_Learning_Curve_{time}.png')    
     
