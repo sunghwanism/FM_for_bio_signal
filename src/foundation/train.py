@@ -89,18 +89,17 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
             
             optimizer.zero_grad()
 
-            x1_represent, x2_represent = model(raw_modal_1, raw_modal_2)
+            enc_feature_1, enc_feature_2 = model(aug_1_modal_1, aug_1_modal_2, aug_2_modal_1, aug_2_modal_2, proj_head=True)
             
-            x1_embd, x2_embd = model.encoder(raw_modal_1, raw_modal_2)
-            subj_pred = advs_model(x1_embd, x2_embd)
+            subj_pred = advs_model(enc_feature_1, enc_feature_2) 
             subj_invariant_loss = advs_model.forward_subject_invariance_loss(subj_pred, subj_label, args.subj_invariant_config['adversarial_weighting_factor']) # DONE -> add subject_invariant function loss
             
-            focal_loss = focal_loss_fn(x1_represent, x2_represent, subj_invariant_loss) # To-Do -> add regularization term about subject invariant
+            focal_loss = focal_loss_fn(enc_feature_1, enc_feature_2, subj_invariant_loss) # To-Do -> add regularization term about subject invariant
             focal_loss.backward()
             optimizer.step()
             
             focal_train_loss += focal_loss.item()
-            
+                
             # For efficient memory management
             del enc_feature_1, enc_feature_2, subj_pred, focal_loss, advs_loss
             torch.cuda.empty_cache()
