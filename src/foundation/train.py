@@ -150,7 +150,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
                     focal_val_loss += focal_loss.item()
                     
                     # For efficient memory management
-                    del enc_feature_1, enc_feature_2, subj_pred, focal_loss
+                    del enc_feature_1, enc_feature_2, focal_loss
                     torch.cuda.empty_cache()
                     
             print("-----"*20)
