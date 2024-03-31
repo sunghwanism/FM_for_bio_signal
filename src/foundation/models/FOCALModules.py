@@ -23,11 +23,14 @@ class FOCAL(nn.Module):
         self.args = args
         self.config = args.focal_config
         self.modalities = args.data_config["modalities"]
-
-        # build encoders
         self.backbone = backbone
+        
+        self.classifier = nn.Sequential(nn.Linear(self.config["embedding_dim"]*2, self.config["embedding_dim"]),
+                                        nn.LeakyReLU(),
+                                        nn.Linear(self.config["embedding_dim"], self.config["num_classes"]))
+        
 
-    def forward(self, aug1_mod1, aug1_mod2, aug2_mod1, aug2_mod2, proj_head=True):
+    def forward(self, aug1_mod1, aug1_mod2, aug2_mod1, aug2_mod2, proj_head=True, class_head=False):
         """
         Input:
             aug1_mod1: augmented_1 input of the first modality.
@@ -39,8 +42,15 @@ class FOCAL(nn.Module):
             mod_features2: Projected mod features of the second augmentation.
         """
         # compute features
+
         mod_features1 = self.backbone(aug1_mod1, aug1_mod2, class_head=False, proj_head=proj_head)
         mod_features2 = self.backbone(aug2_mod1, aug2_mod2, class_head=False, proj_head=proj_head)
+        
+        if class_head:
+            multi_features = torch.cat([mod_features1, mod_features2], dim=1)
+            logit = self.classifier(multi_features)
+            
+            return logit
 
         return mod_features1, mod_features2
 

@@ -45,6 +45,9 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
     for ep in tqdm(range(trainer_config['epochs'])):
         running_advs_train_loss = 0
         focal_train_loss = 0
+        model.train()
+        advs_model.train()
+        focal_loss_fn.train()
         
         for raw_modal_1, raw_modal_2, subj_label, sleep_label in train_loader:
             raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device) # [B, 30], [B, 30*256], [B, 1]
@@ -117,34 +120,31 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
             if ep % trainer_config['val_interval'] == 0:
                 model.eval()
                 advs_model.eval()
+                focal_loss_fn.eval()
                 
-                advs_val_loss = 0
                 focal_val_loss = 0
                 
                 for raw_modal_1, raw_modal_2, subj_label, sleep_label in valid_loader:
                     raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device)
                     
-                    aug_1_modal_1, aug_2_modal_1  = aug_1(raw_modal_1), aug_2(raw_modal_1)
-                    aug_1_modal_2, aug_2_modal_2  = aug_1(raw_modal_2), aug_2(raw_modal_2)
+                    aug_1_modal_1, aug_2_modal_1  = raw_modal_1, raw_modal_1
+                    aug_1_modal_2, aug_2_modal_2  = raw_modal_2, raw_modal_2
                     
                     with torch.no_grad():
                         # x1_represent, x2_represent = model(raw_modal_1, raw_modal_2)
                         enc_feature_1, enc_feature_2 = model(aug_1_modal_1, aug_1_modal_2, aug_2_modal_1, aug_2_modal_2, proj_head=True)
                         subj_pred = advs_model(enc_feature_1, enc_feature_2)
                         
-                        advs_loss = advs_model.forward_adversarial_loss(subj_pred, subj_label)
-                        focal_loss = focal_loss_fn(enc_feature_1, enc_feature_2, subj_invariant_loss) # To-Do -> add regularization term about subject invariant
+                        focal_loss = focal_loss_fn(enc_feature_1, enc_feature_2, 0) # To-Do -> add regularization term about subject invariant
                         
-                        advs_val_loss += advs_loss.item()
                         focal_val_loss += focal_loss.item()
                         
                         # For efficient memory management
-                        del enc_feature_1, enc_feature_2, subj_pred, focal_loss, advs_loss
+                        del enc_feature_1, enc_feature_2, subj_pred, focal_loss
                         torch.cuda.empty_cache()
                         
                 print("-----"*10)
-                print(f"(Validation) Epoch{ep} - Adversarial Loss: {advs_val_loss/ len(valid_loader)}, \
-                    Focal Loss: {focal_val_loss/ len(valid_loader)}")                    
+                print(f"(Validation) Epoch{ep} - Focal Loss: {focal_val_loss/ len(valid_loader)}")                    
                                 
                 if focal_val_loss < best_val_loss:
                     best_val_loss = focal_val_loss
@@ -208,7 +208,7 @@ def main():
                                     stage=args.base_config['label_key'])
     
     val_loader = torch.utils.data.DataLoader(val_dataset,
-                                             batch_size=args.trainer_config['batch_size'],
+                                             batch_size=args.trainer_config['batch_size']//3,
                                              shuffle=False,
                                              num_workers=2)
     
