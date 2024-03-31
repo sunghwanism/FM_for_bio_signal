@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-from general_utils.tensor_utils import extract_non_diagonal_matrix
 from models.FOCALModules import split_features
 
 class FOCALLoss(nn.Module):
