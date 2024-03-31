@@ -157,10 +157,11 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
                 
 def print_args(args):
     
-    print("Base Configs:")
-    for k, v in args.base_config.items():
+    print("Data Configs:")
+    for k, v in args.data_config.items():
         print(f"\t{k}: {v}")
     print("----------"*10)
+    
     
     print("Focal Configs:")
     for k, v in args.focal_config.items():
