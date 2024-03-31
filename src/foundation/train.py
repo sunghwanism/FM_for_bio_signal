@@ -25,8 +25,14 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     
-    trainer_config = args.trainer_config
+    start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     model_save_dir = args.trainer_config["model_save_dir"]
+    model_save_dir = os.path.join(model_save_dir, start_time)
+    
+    if not os.path.exists(model_save_dir):
+        os.makedirs(model_save_dir)
+
+    trainer_config = args.trainer_config
     log_save_dir = args.trainer_config["log_save_dir"]
     
     model_save_format = args.model_save_format
@@ -161,11 +167,8 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
             if focal_val_loss < best_val_loss:
                 best_val_loss = focal_val_loss
                 
-                if not os.path.exists(model_save_dir):
-                    os.makedirs(model_save_dir)
-                
                 time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                focal_model_checkpoint = os.path.join(model_save_dir, f'SSL_focal_model_{time}_ep_{ep}.pth')
+                focal_model_checkpoint = os.path.join(model_save_dir, f'SSL_focal_model_ep_{ep}.pth')
                 
                 # Save ckpt & arguments
                 model_save_format["train_acc"] = train_accuracy
@@ -181,12 +184,11 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
                 print(f"Model Saved - Focal Model: {focal_model_checkpoint}")
             print("-----"*20)
     
-    finish_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    LOGPATH = os.path.join(args.trainer_config["log_save_dir"], f'SSL_focal_log_{finish_time}.npz')
+    LOGPATH = os.path.join(args.trainer_config["log_save_dir"], f'SSL_focal_log_{start_time}.npz')
     train_log = np.array([train_focal_losses, val_focal_losses, train_accuracies, train_advs_losses])
     np.savez(LOGPATH, train_log)
     
-    save_metrics(train_focal_losses, val_focal_losses, train_accuracies, train_advs_losses, finish_time)
+    save_metrics(train_focal_losses, val_focal_losses, train_accuracies, train_advs_losses, start_time)
                 
 def print_args(args):
     
