@@ -114,15 +114,15 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
             optimizer.step()
             
             focal_train_loss += focal_loss.item()
-                
-            # For efficient memory management
-            del enc_feature_1, enc_feature_2, subj_pred, focal_loss
-            torch.cuda.empty_cache()
             
             # Calculate accuracy
             preds = torch.argmax(subj_pred, dim=1)
             correct_preds += (preds == subj_label).sum().item()
             total_preds += subj_label.size(0)
+            
+            # For efficient memory management
+            del enc_feature_1, enc_feature_2, subj_pred, focal_loss
+            torch.cuda.empty_cache()
             
         # Calculate and store train accuracy and losses for plotting
         train_accuracy = correct_preds / total_preds
