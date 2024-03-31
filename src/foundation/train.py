@@ -5,6 +5,7 @@ sys.path.append('./')
 import args
 import argparse
 import logging
+from tqdm import tqdm
 
 import torch
 from models.AdversarialModel import AdversarialModel
@@ -41,7 +42,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
     model.train()
     best_val_loss = float('inf')
     
-    for ep in range(trainer_config['epochs']):
+    for ep in tqdm(range(trainer_config['epochs'])):
         running_advs_train_loss = 0
         focal_train_loss = 0
         
@@ -106,7 +107,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
             focal_train_loss += focal_loss.item()
                 
             # For efficient memory management
-            del enc_feature_1, enc_feature_2, subj_pred, focal_loss, advs_loss
+            del enc_feature_1, enc_feature_2, subj_pred, focal_loss
             torch.cuda.empty_cache()
             
         if ep % trainer_config['log_interval'] == 0:
@@ -181,12 +182,12 @@ def main():
     # Check the arguments
     time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     
-    logging.basicConfig(level=print,
-                    format='%(asctime)s %(levelname)s: %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filename=os.path.join(args.base_config["log_save_dir"], 
-                                          f'focal_subj_mesa_{time}.log'),
-                    filemode='a')
+    # logging.basicConfig(level=print,
+    #                 format='%(asctime)s %(levelname)s: %(message)s',
+    #                 datefmt='%Y-%m-%d %H:%M:%S',
+    #                 filename=os.path.join(args.base_config["log_save_dir"], 
+    #                                       f'focal_subj_mesa_{time}.log'),
+    #                 filemode='a')
     
     print_args(args)
 
@@ -237,7 +238,7 @@ def main():
     print("Start Training SA Focal Model")
     
     
-    output = train_SA_Focal(train_loader, val_loader, focal_model, AdversarialModel,
+    output = train_SA_Focal(train_loader, val_loader, focal_model, advs_model,
                             focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
     
     print("Finished Training SA Focal Model")
