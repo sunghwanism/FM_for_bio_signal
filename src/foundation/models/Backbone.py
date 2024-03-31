@@ -147,7 +147,7 @@ class DeepSense(nn.Module):
             if mod == "ecg":
                 self.mod_projectors[mod] = nn.Sequential(
                 nn.Linear(self.config['mod1_linear_dim'], self.config["recurrent_dim"] * 2), # To-do: calculate the linear dim automatically
-                nn.dropout(self.config["proj_dropout_rate"]),
+                nn.Dropout(self.config["proj_dropout_rate"]),
                 nn.Linear(self.config["recurrent_dim"] * 2, out_dim),
                 nn.ReLU(),
                 nn.Linear(out_dim, out_dim),
@@ -155,7 +155,7 @@ class DeepSense(nn.Module):
             else:
                 self.mod_projectors[mod] = nn.Sequential(
                     nn.Linear(self.config['mod2_linear_dim'], self.config["recurrent_dim"] * 2), # To-do: calculate the linear dim automatically
-                    nn.dropout(self.config["proj_dropout_rate"]),
+                    nn.Dropout(self.config["proj_dropout_rate"]),
                     nn.Linear(self.config["recurrent_dim"] * 2, out_dim),
                     nn.ReLU(),
                     nn.Linear(out_dim, out_dim),
