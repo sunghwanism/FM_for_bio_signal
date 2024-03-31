@@ -20,7 +20,7 @@ import datetime
 from data.Augmentaion import init_augmenter
 
 def train_SA_Focal(train_loader, valid_loader, model, advs_model, 
-                   optimizer, advs_optimizer, focal_loss_fn, device, args):
+                   optimizer, advs_optimizer, focal_loss_fn, args):
     torch.manual_seed(args.SEED)
     torch.cuda.manual_seed(args.SEED)
     torch.cuda.manual_seed_all(args.SEED)
@@ -48,7 +48,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
         focal_loss_fn.train()
         
         for raw_modal_1, raw_modal_2, subj_label, sleep_label in train_loader:
-            raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device) # [B, 30], [B, 30*256], [B, 1]
+            raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(args.focal_config["device"]), raw_modal_2.to(args.focal_config["device"]), subj_label.to(args.focal_config["device"]), sleep_label.to(args.focal_config["device"]) # [B, 30], [B, 30*256], [B, 1]
             
             aug_1_modal_1 = aug_1(raw_modal_1)
             aug_2_modal_1 = aug_2(raw_modal_1)
@@ -123,7 +123,7 @@ def train_SA_Focal(train_loader, valid_loader, model, advs_model,
                 focal_val_loss = 0
                 
                 for raw_modal_1, raw_modal_2, subj_label, sleep_label in valid_loader:
-                    raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(device), raw_modal_2.to(device), subj_label.to(device), sleep_label.to(device)
+                    raw_modal_1, raw_modal_2, subj_label, sleep_label = raw_modal_1.to(args.focal_config["device"]), raw_modal_2.to(args.focal_config["device"]), subj_label.to(args.focal_config["device"]), sleep_label.to(args.focal_config["device"])
                     
                     aug_1_modal_1, aug_2_modal_1  = raw_modal_1, raw_modal_1
                     aug_1_modal_2, aug_2_modal_2  = raw_modal_2, raw_modal_2
@@ -199,8 +199,6 @@ def main():
                                                shuffle=True,
                                                num_workers=4)
     
-    print("Successfully Loaded Train Data")
-
     val_dataset = MESAPairDataset(file_path=args.data_config['val_data_dir'],
                                     modalities=args.data_config['modalities'],
                                     subject_idx=args.data_config['subject_key'],
@@ -211,13 +209,11 @@ def main():
                                              shuffle=False,
                                              num_workers=4)
     
-    print("Successfully Loaded Validation Data")    
-
-    print("Loading the Focal Model")
+    print("****** Successfully Dataset ******")    
     
     advs_model = AdversarialModel(args).to(args.subj_invariant_config["device"])
     advs_optimizer = torch.optim.Adam(advs_model.parameters(), lr=args.subj_invariant_config['lr'])
-    print("Complete Loading the Adversarial Model")
+    print("****** Complete Loading the Adversarial Model ******")
     
     
     if str(list(args.focal_config["backbone"].keys())[0]) == "DeepSense":
@@ -229,16 +225,13 @@ def main():
     focal_model = FOCAL(args, backbone).to(args.focal_config["device"])
     focal_optimizer = torch.optim.Adam(focal_model.parameters(), lr=args.focal_config["lr"])
     focal_loss_fn = FOCALLoss(args)
-    print("Complete Loading the FOCAL Model")
-    
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(device)
+    print("****** Complete Loading the FOCAL Model ******")
     
     print("Start Training SA Focal Model")
     
     
     train_SA_Focal(train_loader, val_loader, focal_model, advs_model,
-                   focal_optimizer, advs_optimizer, focal_loss_fn, device, args)
+                   focal_optimizer, advs_optimizer, focal_loss_fn, args)
     
     print("Finished Training SA Focal Model")
     
