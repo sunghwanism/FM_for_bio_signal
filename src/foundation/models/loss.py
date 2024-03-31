@@ -48,8 +48,8 @@ class FOCALLoss(nn.Module):
         embeddings shape: [b, seq, dim]
         """
         # get shape
-        batch, seq, dim = embeddings1.shape
-
+        batch, dim = embeddings1.shape
+        seq = 1
         # Put the compared dimension into the second dimension
         if finegrain:
             """Compare within the sequences, [b, seq, dim]"""
@@ -59,16 +59,16 @@ class FOCALLoss(nn.Module):
             dim_parallel = batch
             dim_compare = seq
         else:
-            """Compare between the sequences, [seq, b, dim]"""
-            in_embeddings1 = embeddings1.transpose(0, 1)
-            in_embeddings2 = embeddings2.transpose(0, 1)
+            """Compare between the sequences, [1, B, dim]"""
+            in_embeddings1 = embeddings1.unsqueeze(0)
+            in_embeddings2 = embeddings2.unsqueeze(0)
             N = 2 * batch
             dim_parallel = seq
             dim_compare = batch
 
         # Calculate similarity
-        z = torch.cat((in_embeddings1, in_embeddings2), dim=1)
-        sim = self.similarity_f(z.unsqueeze(2), z.unsqueeze(1)) / self.temperature
+        z = torch.cat((in_embeddings1, in_embeddings2), dim=1) # [1, 2B, dim]
+        sim = self.similarity_f(z.unsqueeze(2), z.unsqueeze(1)) / self.temperature # [1, 2B, 2B]
         sim_i_j = torch.diagonal(sim, dim_compare, dim1=-2, dim2=-1)
         sim_j_i = torch.diagonal(sim, -dim_compare, dim1=-2, dim2=-1)
 
@@ -89,9 +89,9 @@ class FOCALLoss(nn.Module):
         input shape: [b, seq_len, dim]
         We use y=-1 to make embedding1 and embedding2 orthogonal.
         """
-        # convert [batch, seq, dim] to [batch * seq, dim]
-        flat_embeddings1 = embeddings1.reshape(-1, embeddings1.shape[-1])
-        flat_embeddings2 = embeddings2.reshape(-1, embeddings2.shape[-1])
+        # [batch, dim]
+        flat_embeddings1 = embeddings1 # .reshape(-1, embeddings2.shape[-1])
+        flat_embeddings2 = embeddings2 # .reshape(-1, embeddings2.shape[-1])
 
         batch = flat_embeddings1.shape[0]
         orthogonal_loss = self.orthonal_loss_f(
@@ -118,28 +118,16 @@ class FOCALLoss(nn.Module):
         """
         seq_len = self.config["seq_len"]
         
-        # Step 0: Reshape features 
-        # B, dim -> B, seq, dim
-        reshaped_mod_features1, reshaped_mod_features2 = {}, {}
-        for mod in self.modalities:
-            reshaped_mod_features1[mod] = mod_features1[mod].reshape(-1, seq_len, mod_features1[mod].shape[-1])
-            reshaped_mod_features2[mod] = mod_features2[mod].reshape(-1, seq_len, mod_features2[mod].shape[-1])
-
-        # Step 1: split features into "shared" space and "private" space of each (mod, subsequence), [b, seq, dim]
-        split_mod_features1 = split_features(reshaped_mod_features1)
-        split_mod_features2 = split_features(reshaped_mod_features2)
+        mod_features1 = mod_features1.reshape(1, seq_len, mod_features1.shape[-1])
+        mod_features1 = mod_features1.reshape(1, seq_len, mod_features1.shape[-1])
+        
+        # Step 1: split features into "shared" space and "private" space of each (mod, subsequence), # B, dim
+        split_mod_features1 = split_features(mod_features1) # B, dim
+        split_mod_features2 = split_features(mod_features2) # B, dim
 
         # Step 2: shared space contrastive loss
         shared_contrastive_loss = 0
-        # if self.config.tag == "noPrivate":
-        #     for mod_features in [reshaped_mod_features1, reshaped_mod_features2]:
-        #         for i, mod1 in enumerate(self.modalities):
-        #             for mod2 in self.modalities[i + 1 :]:
-        #                 shared_contrastive_loss += self.forward_contrastive_loss(
-        #                     mod_features[mod1],
-        #                     mod_features[mod2],
-        #                 )
-        # else:
+
         for split_mod_features in [split_mod_features1, split_mod_features2]:
             for i, mod1 in enumerate(self.modalities):
                 for mod2 in self.modalities[i + 1 :]:
