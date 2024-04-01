@@ -28,7 +28,7 @@ MANIFEST
 
 
 /**/*.DS_Store
-ecg_*
+ecg*
 pair_test*
 
 
