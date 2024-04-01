@@ -8,7 +8,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 # Set the root directory
 root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
-data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
+data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset/pair_test_subj"
 
 # root_dir = "/NFS/Users/moonsh/FM_biosignal"
 # data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
@@ -19,9 +19,11 @@ SEED = 42
 Modalities = 'hr', 'ecg', 'activity'
 """
 
-data_config = {'train_data_dir': os.path.join(data_dir, 'pair_train'), # 'pair' is real train data
-               'val_data_dir': os.path.join(data_dir, 'pair_val'),
-               'test_data_dir': os.path.join(data_dir, 'pair_test'),
+SUBJECT_ID = '0558'
+
+data_config = {'train_data_dir': os.path.join(data_dir, f'subj_{SUBJECT_ID}_train'), # 'pair' is real train data
+               'val_data_dir': os.path.join(data_dir, f'subj_{SUBJECT_ID}_valid'),
+               'test_data_dir': os.path.join(data_dir, f'subj_{SUBJECT_ID}_test'),
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
                'subject_key': 'subject_idx',
@@ -107,7 +109,7 @@ model_save_format = {"train_acc": None,
 # Classifier Arguments
 downstream_config = {'embedding_dim': 1024,
                      'num_classes': 4,
-                     'lr': 0.001,
+                     'lr': 1e-5,
                      'epoch': 100,
                      'model_save_dir': os.path.join(root_dir, 'checkpoints/downstream'),
                      }
