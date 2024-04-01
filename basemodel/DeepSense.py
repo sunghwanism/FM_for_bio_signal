@@ -144,17 +144,17 @@ class DeepSense(nn.Module):
                 self.mod_projectors[mod] = nn.Sequential(
                 nn.Linear(self.config['mod1_linear_dim'], self.config["recurrent_dim"] * 2), # To-do: calculate the linear dim automatically
                 nn.Dropout(self.config["proj_dropout_rate"]),
-                nn.Linear(self.config["recurrent_dim"] * 2, self.args.config["embedding_dim"]),
+                nn.Linear(self.config["recurrent_dim"] * 2, self.config["embedding_dim"]),
                 nn.ReLU(),
-                nn.Linear(self.args.config["embedding_dim"], self.args.config["embedding_dim"]),
+                nn.Linear(self.config["embedding_dim"], self.config["embedding_dim"]),
             )
             else:
                 self.mod_projectors[mod] = nn.Sequential(
                     nn.Linear(self.config['mod2_linear_dim'], self.config["recurrent_dim"] * 2), # To-do: calculate the linear dim automatically
                     nn.Dropout(self.config["proj_dropout_rate"]),
-                    nn.Linear(self.config["recurrent_dim"] * 2, self.args.config["embedding_dim"]),
+                    nn.Linear(self.config["recurrent_dim"] * 2, self.config["embedding_dim"]),
                     nn.ReLU(),
-                    nn.Linear(self.args.config["embedding_dim"], self.args.config["embedding_dim"]),
+                    nn.Linear(self.config["embedding_dim"], self.config["embedding_dim"]),
                 )
         
         print("** Finished Initializing DeepSense Backbone **")
