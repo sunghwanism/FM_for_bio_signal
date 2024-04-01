@@ -28,6 +28,7 @@ MANIFEST
 
 
 /**/*.DS_Store
+ecg_*
 
 
 # PyInstaller
