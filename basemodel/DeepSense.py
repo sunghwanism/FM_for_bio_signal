@@ -44,7 +44,7 @@ class DeepSense(nn.Module):
         super(DeepSense, self).__init__()
         
         self.args = args
-        self.config = args.trainer_config["backbone"]["DeepSense"]
+        self.config = args.trainer_config["model_name"]["DeepSense"]
         self.device = args.trainer_config["device"]
         self.modalities = args.data_config["modalities"]
         

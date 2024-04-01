@@ -59,6 +59,7 @@ trainer_config = {'epoch': 50,
                                          ############################
                                          'embedding_dim': 512,
                                          'fc_dim': 256,
+                                         'proj_dropout_rate': 0.3,
                                          'num_classes': 4,
                                          }
                              },
