@@ -18,9 +18,9 @@ Modalities = 'hr', 'ecg', 'activity'
 SUBJECT_ID = 0
 
 
-data_config = {'train_data_dir': os.path.join(data_dir, f'pair_test/subj_{SUBJECT_ID}_train'), # 'pair' is real train data
-               'val_data_dir': os.path.join(data_dir, f'pair_test/subj_{SUBJECT_ID}_val'),
-               'test_data_dir': os.path.join(data_dir, f'pair_test/subj_{SUBJECT_ID}_test'),
+data_config = {'train_data_dir': os.path.join(data_dir, f'pair_test_subj/subj_{SUBJECT_ID}_train'), # 'pair' is real train data
+               'val_data_dir': os.path.join(data_dir, f'pair_test_subj/subj_{SUBJECT_ID}_val'),
+               'test_data_dir': os.path.join(data_dir, f'pair_test_subj/subj_{SUBJECT_ID}_test'),
                'modalities': ['ecg', 'hr'],
                'label_key': 'stage',
                'subject_key': 'subject_idx',
