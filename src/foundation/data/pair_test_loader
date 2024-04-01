@@ -47,5 +47,3 @@ for subject in selected_subjects:
         shutil.move(os.path.join(output_folder, file_name), os.path.join(val_folder, file_name))
     for file_name in test_files:
         shutil.move(os.path.join(output_folder, file_name), os.path.join(test_folder, file_name))
-
-print("Files split and organized successfully.")
