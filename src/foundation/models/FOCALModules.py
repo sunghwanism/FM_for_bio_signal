@@ -25,9 +25,12 @@ class FOCAL(nn.Module):
         self.modalities = args.data_config["modalities"]
         self.backbone = backbone
         
-        self.classifier = nn.Sequential(nn.Linear(self.config["embedding_dim"]*2, self.config["embedding_dim"]),
-                                        nn.LeakyReLU(),
-                                        nn.Linear(self.config["embedding_dim"], self.config["num_classes"]))
+        self.classifier = nn.Sequential(
+            nn.Linear(self.config['embedding_dim'] * 4, 128),  # Concatenated features from 4 inputs
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(128, self.num_classes)
+        )
         
 
     def forward(self, aug1_mod1, aug1_mod2, aug2_mod1, aug2_mod2, proj_head=True, class_head=False):
@@ -47,12 +50,17 @@ class FOCAL(nn.Module):
         mod_features2 = self.backbone(aug2_mod1, aug2_mod2, class_head=False, proj_head=proj_head)
         
         if class_head:
-            multi_features = torch.cat([mod_features1, mod_features2], dim=1)
-            logit = self.classifier(multi_features)
+            features = []
+            for modality in self.args.data_config['modalities']:
+                features.append(mod_features1[modality])
+                features.append(mod_features2[modality])
             
-            return logit
+            concatenated_features = torch.cat(features, dim=1)
+            logit = self.classifier(concatenated_features)
 
-        return mod_features1, mod_features2
+            return logit
+        else:
+            return mod_features1, mod_features2
 
 
 def split_features(mod_features):

@@ -7,11 +7,11 @@ import torch
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 # Set the root directory
-# root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
-# data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
+root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
+data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
 
-root_dir = "/NFS/Users/moonsh/FM_biosignal"
-data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
+# root_dir = "/NFS/Users/moonsh/FM_biosignal"
+# data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
 SEED = 42
 ################################################################################
 # Dataset Arguments
@@ -102,3 +102,12 @@ model_save_format = {"train_acc": None,
                      "model_path": None,
                      "model_state_dict": None,
                      'batch_size': None}
+
+################################################################################
+# Classifier Arguments
+downstream_config = {'embedding_dim': 1024,
+                     'num_classes': 4,
+                     'lr': 0.001,
+                     'epoch': 100,
+                     'model_save_dir': os.path.join(root_dir, 'checkpoints/downstream'),
+                     }
