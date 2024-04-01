@@ -64,8 +64,8 @@ trainer_config = {'epoch': 50,
                                          }
                              },
                      'val_interval': 1,
-                     'model_save_dir': os.path.join(root_dir, 'checkpoints_subj_{SUBJECT_ID}_ind'),
-                     'log_save_dir': os.path.join(root_dir, 'logs_subj_{SUBJECT_ID}_ind'),
+                     'model_save_dir': os.path.join(root_dir, f'checkpoints_subj_{SUBJECT_ID}_ind'),
+                     'log_save_dir': os.path.join(root_dir, f'logs_subj_{SUBJECT_ID}_ind'),
                      'device': torch.device('cuda' if torch.cuda.is_available() else 'cpu')
                    }
 
