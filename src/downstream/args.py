@@ -7,11 +7,15 @@ import torch
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 # Set the root directory
-root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
-data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset/pair_test_subj"
+# root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
+# data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset/pair_test_subj"
 
 # root_dir = "/NFS/Users/moonsh/FM_biosignal"
 # data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
+
+root_dir = "../../"
+data_dir = "../../"
+
 SEED = 42
 ################################################################################
 # Dataset Arguments

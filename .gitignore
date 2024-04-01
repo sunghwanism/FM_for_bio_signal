@@ -30,6 +30,8 @@ MANIFEST
 /**/*.DS_Store
 ecg*
 pair_test*
+logs*
+models*
 
 
 # PyInstaller
