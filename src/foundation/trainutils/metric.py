@@ -36,7 +36,7 @@ def get_acc_loss_from_dataloader(model, dataloder, device, criterion):
 
 def save_metrics(train_focal_losses, val_focal_losses, train_accuracies, train_advs_losses, time):
     
-    fig, ax = plt.subplots(3, 1, figsize=(12, 8))
+    fig, ax = plt.subplots(3, 1, figsize=(16, 12))
 
     ax[0].plot(train_focal_losses, label='Train')
     ax[0].plot(val_focal_losses, label='Validation')
@@ -59,5 +59,6 @@ def save_metrics(train_focal_losses, val_focal_losses, train_accuracies, train_a
     ax[2].legend()
 
     plt.suptitle(f"Focal SSL Learning Curve")
+    plt.tight_layout()
     plt.savefig(f'./asset/SSL_focal_Learning_Curve_{time}.png')    
     
