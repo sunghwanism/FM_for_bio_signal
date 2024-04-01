@@ -29,6 +29,7 @@ MANIFEST
 
 /**/*.DS_Store
 ecg_*
+pair_test*
 
 
 # PyInstaller
