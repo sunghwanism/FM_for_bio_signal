@@ -32,7 +32,7 @@ data_config = {'train_data_dir': os.path.join(data_dir, f'pair_test_subj/subj_{S
 }
 
 
-trainer_config = {'epoch': 50,
+trainer_config = {'epoch': 100,
                    'batch_size': 1024,
                    'optimizer': 'Adam',
                    'lr': 0.001,
