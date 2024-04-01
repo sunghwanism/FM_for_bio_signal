@@ -132,8 +132,9 @@ class DeepSense(nn.Module):
                                                         hidden_size=self.config["recurrent_dim"], 
                                                         num_layers=self.config["num_recurrent_layers"])            
         
-        self.class_layer = nn.Sequential(nn.Linear(self.config["embedding_dim"]*2, self.config["fc_dim"]),
+        self.class_layer = nn.Sequential(nn.Linear(self.config["class_layer_dim"]*2, self.config["fc_dim"]),
                                         nn.GELU(),
+                                        nn.Dropout(self.config["proj_dropout_rate"]),
                                         nn.Linear(self.config["fc_dim"], self.config["num_classes"]))
         
         self.mod_projectors = nn.ModuleDict()

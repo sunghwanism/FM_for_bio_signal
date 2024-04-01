@@ -58,8 +58,9 @@ trainer_config = {'epoch': 50,
                                          'mod2_linear_dim': 1920,
                                          ############################
                                          'embedding_dim': 512,
+                                         'class_layer_dim': 158720,
                                          'fc_dim': 256,
-                                         'proj_dropout_rate': 0.3,
+                                         'proj_dropout_rate': 0.5,
                                          'num_classes': 4,
                                          }
                              },
