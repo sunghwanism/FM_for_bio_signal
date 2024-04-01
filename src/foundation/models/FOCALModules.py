@@ -1,5 +1,15 @@
 import torch.nn as nn
+import torch
 
+import sys
+sys.path.append("../")
+import args
+
+torch.manual_seed(args.SEED)
+torch.cuda.manual_seed(args.SEED)
+torch.cuda.manual_seed_all(args.SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 class FOCAL(nn.Module):
     def __init__(self, args, backbone):
@@ -11,27 +21,45 @@ class FOCAL(nn.Module):
         super(FOCAL, self).__init__()
 
         self.args = args
-        self.config = args.dataset_config["FOCAL"]
-        self.backbone_config = args.dataset_config[args.model]
-        self.modalities = args.dataset_config["modality_names"]
-
-        # build encoders
+        self.config = args.focal_config
+        self.modalities = args.data_config["modalities"]
         self.backbone = backbone
+        self.num_classes = args.downstream_config['num_classes']
+        
+        self.classifier = nn.Sequential(nn.Linear(self.config["embedding_dim"]*2, self.config["embedding_dim"]),
+                                        nn.LeakyReLU(),
+                                        nn.Linear(self.config["embedding_dim"], self.config["num_classes"]))
+        
 
-    def forward(self, aug_freq_input1, aug_freq_input2, proj_head=False):
+    def forward(self, aug1_mod1, aug1_mod2, aug2_mod1, aug2_mod2, proj_head=True, class_head=False):
         """
         Input:
-            freq_input1: Input of the first augmentation.
-            freq_input2: Input of the second augmentation.
+            aug1_mod1: augmented_1 input of the first modality.
+            aug1_mod2: augmented_1 input of the second modality.
+            aug2_mod1: augmented_2 input of the first modality.
+            aug2_mod2: augmented_2 input of the second modality.
         Output:
             mod_features1: Projected mod features of the first augmentation.
             mod_features2: Projected mod features of the second augmentation.
         """
         # compute features
-        mod_features1 = self.backbone(aug_freq_input1, class_head=False, proj_head=proj_head)
-        mod_features2 = self.backbone(aug_freq_input2, class_head=False, proj_head=proj_head)
 
-        return mod_features1, mod_features2
+        mod_features1 = self.backbone(aug1_mod1, aug1_mod2, class_head=False, proj_head=proj_head)
+        mod_features2 = self.backbone(aug2_mod1, aug2_mod2, class_head=False, proj_head=proj_head)
+        
+        if class_head:
+            features = []
+            for modality in self.args.data_config['modalities']:
+                features.append(mod_features1[modality])
+                # features.append(mod_features2[modality])
+            
+            concatenated_features = torch.cat(features, dim=1)
+            logit = self.classifier(concatenated_features)
+
+            return logit
+        else:
+            
+            return mod_features1, mod_features2
 
 
 def split_features(mod_features):
@@ -48,6 +76,7 @@ def split_features(mod_features):
                 "shared": mod_features[mod][:, 0:split_dim],
                 "private": mod_features[mod][:, split_dim:],
             }
+            
         else:
             b, seq, dim = mod_features[mod].shape
             split_dim = dim // 2

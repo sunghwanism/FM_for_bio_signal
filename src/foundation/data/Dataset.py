@@ -1,78 +1,73 @@
-from torch.utils.data import Dataset
 import os
+import numpy as np
+import torch
+from torch.utils.data import Dataset
+from tqdm import tqdm
 
-class MultiModalSequenceDataset(Dataset):
-    def __init__(self, args, index_file):
-        """
-        Extract multiple sequences of consecutive samples at the time dimension.
-        """
-        self.args = args
-        self.sample_files = list(np.loadtxt(index_file, dtype=str))
-        self.partition_subsequences()
 
-    def partition_subsequences(self):
-        """
-        Extract all sequence IDs from the sample files.
-        seq_to_sample: {sequence_id: [(sample_id, sample_file), ...], ...}
-        """
-        seq_len = self.args.dataset_config["seq_len"]
+# class MESAPairDataset(Dataset):
+#     def __init__(self, file_path, modalities=['ecg', 'hr'], subject_idx='subject_idx', stage='stage'):
+#         super(MESAPairDataset, self).__init__()
+#         self.root_dir = file_path
+#         self.files = os.listdir(file_path)
+#         self.modalities = modalities
+#         self.subject_idx = subject_idx
+#         self.stage = stage
+        
+#     def __len__(self):
 
-        if self.args.dataset == "RealWorld_HAR":
-            delimiter = "-"
-        else:
-            delimiter = "_"
+#         return len(self.files)
 
-        seq_to_samples = {}
-        for sample_idx, sample_file in enumerate(self.sample_files):
-            # Sequence ID is separeted by the last underscore symbol.
-            basename = os.path.basename(sample_file)
-            seq = basename.rsplit(delimiter, 1)[0]
 
-            if seq not in seq_to_samples:
-                seq_to_samples[seq] = [(sample_idx, sample_file)]
-            else:
-                seq_to_samples[seq].append((sample_idx, sample_file))
-
-        # sort the sequences
-        for seq in seq_to_samples:
-            seq_to_samples[seq].sort(key=lambda x: int(os.path.basename(x[1]).rsplit(delimiter, 1)[1].split(".")[0]))
-            seq_to_samples[seq] = [e[0] for e in seq_to_samples[seq]]
-
-        # divide sequences into subsequences of fixed length
-        self.subseqs = []
-        self.subseq_to_sample_idx = {}
-        for seq in seq_to_samples:
-            for i in range(0, len(seq_to_samples[seq]), seq_len):
-                subseq = f"{seq}_{i}"
-                self.subseqs.append(subseq)
-
-                # constitute the sample list with fixed length
-                sample_id_list = seq_to_samples[seq][i : i + seq_len]
-                while len(sample_id_list) < seq_len:
-                    sample_id_list.append(sample_id_list[-1])
-
-                self.subseq_to_sample_idx[subseq] = sample_id_list
-
+#     def __getitem__(self, idx):
+#         data = np.load(os.path.join(self.root_dir, self.files[idx])) # numpy file on each sample (segments)
+        
+#         self.modality_1 = torch.tensor(data[self.modalities[0]], dtype=torch.float)
+#         self.modality_2 = torch.tensor(data[self.modalities[1]], dtype=torch.float)
+#         self.subject_id = torch.tensor(data[self.subject_idx], dtype=torch.long)
+#         self.sleep_stage = torch.tensor(data[self.stage], dtype=torch.long)
+        
+#         sample = [self.modality_1, self.modality_2, self.subject_id, self.sleep_stage]
+        
+#         return sample
+    
+    
+    
+class MESAPairDataset(Dataset):
+    def __init__(self, file_path, modalities=['ecg', 'hr'], subject_idx='subject_idx', stage='stage'):
+        super(MESAPairDataset, self).__init__()
+        self.root_dir = file_path
+        self.files = os.listdir(file_path)
+        self.modalities = modalities
+        self.subject_idx = subject_idx
+        self.stage = stage
+        
     def __len__(self):
-        return len(self.subseqs)
 
-    def __getitem__(self, sample_idx):
-        """
-        Extract a random sequence of samples.
-        """
-        sample = torch.load(self.sample_files[sample_idx])
-        data = sample["data"]
+        return len(self.files)
 
-        if isinstance(sample["label"], dict):
-            if self.args.task == "vehicle_classification":
-                label = sample["label"]["vehicle_type"]
-            elif self.args.task == "distance_classification":
-                label = sample["label"]["distance"]
-            elif self.args.task == "speed_classification":
-                label = sample["label"]["speed"]
-            else:
-                raise ValueError(f"Unknown task: {self.args.task}")
-        else:
-            label = sample["label"]
 
-        return data, label
+    def __getitem__(self, idx):
+        data = np.load(os.path.join(self.root_dir, self.files[idx])) # numpy file on each sample (segments)
+        
+        self.modality_1 = torch.tensor(data[self.modalities[0]], dtype=torch.float)
+        self.modality_2 = torch.tensor(data[self.modalities[1]], dtype=torch.float)
+        self.subject_id = torch.tensor(data[self.subject_idx], dtype=torch.long)
+        stage = data[self.stage]
+        
+        #if self.num_outputs == 4:
+        if stage in [1, 2]:
+            stage = 1
+        elif stage in [3, 4]:
+            stage = 2
+        elif stage == 5:
+            stage = 3
+        
+        # elif self.num_outputs == 2:
+        #     if labels in [1, 2, 3, 4, 5]:
+        #         labels = 1
+        self.sleep_stage = torch.tensor(stage, dtype=torch.long)
+
+        sample = [self.modality_1, self.modality_2, self.subject_id, self.sleep_stage]
+        
+        return sample
