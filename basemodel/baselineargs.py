@@ -15,7 +15,7 @@ SEED = 42
 Modalities = 'hr', 'ecg', 'activity'
 """
 
-SUBJECT_ID = 0
+SUBJECT_ID = "0558" # ["0558", "0560", "0565", "0571", "0583", "0586", "0590", "0614", "0621", "0626"]
 
 
 data_config = {'train_data_dir': os.path.join(data_dir, f'pair_test_subj/subj_{SUBJECT_ID}_train'), # 'pair' is real train data
