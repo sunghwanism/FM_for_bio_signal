@@ -20,7 +20,7 @@ SEED = 42
 """
 Modalities = 'hr', 'ecg', 'activity'
 """
-SUBJECT_ID = '0560' # ["0558", "0560", "0565", "0571", "0583"]
+SUBJECT_ID = '0558' # ["0558", "0560", "0565", "0571", "0583"]
 
 
 data_config = {'train_data_dir': os.path.join(data_dir, f'pair_test_subj/subj_{SUBJECT_ID}_train'), # 'pair' is real train data
@@ -38,7 +38,6 @@ data_config = {'train_data_dir': os.path.join(data_dir, f'pair_test_subj/subj_{S
 
 
 trainer_config = {'batch_size': 32,
-                  'epochs': 50,
                   'log_interval': 1,
                   'val_interval': 1,
                   'model_save_dir': os.path.join(root_dir, 'ecg_hr_best'),
@@ -59,8 +58,9 @@ model_save_format = {"train_acc": None,
 # Classifier Arguments
 downstream_config = {'embedding_dim': 1024,
                      'num_classes': 4,
-                     'lr': 1e-5,
-                     'epoch': 30,
+                     'lr': 1e-4,
+                     'epoch': 100,
                      'val_freq': 1,
                      'model_save_dir': os.path.join(root_dir, 'models/ckpt_down'),
+                     'log_save_dir': os.path.join(root_dir, 'logs/logs_down')
                      }
