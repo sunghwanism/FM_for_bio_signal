@@ -23,8 +23,8 @@ import matplotlib.pyplot as plt
 
 device = torch.device('mps')
 
-# aug_1 = init_augmenter("NoAugmenter", None).to(device)
-# aug_2 = init_augmenter("NoAugmenter", None).to(device)
+aug_1 = init_augmenter("NoAugmenter", None).to(device)
+aug_2 = init_augmenter("NoAugmenter", None).to(device)
 
 
 class MESAPairDataset(Dataset):
@@ -90,8 +90,11 @@ def get_predict_label_from_fm_classifier(model, downstream_model, dataloder, dev
                                            aug_2_modal_1, aug_2_modal_2, proj_head=True, class_head=False)
         
         preds = downstream_model(mod_feature1, mod_feature2)
-        pred_list.extend(preds.detch().cpu().numpy().squeeze())
-        labels.extend(sleep_stage.detch().cpu().numpy().squeeze())
+        
+        preds = torch.argmax(preds, dim=1)
+        
+        pred_list.extend(preds.detach().cpu().numpy().squeeze())
+        labels.extend(sleep_stage.detach().cpu().numpy().squeeze())
         
     return pred_list, labels
 
@@ -168,17 +171,21 @@ def predict_using_individual_model(subj_index):
     
     return acc, f1score
 
-def predict_using_fm_classifier(subj_index, model_index):
+def predict_using_fm_classifier(subj_index):
     
     subj_test_data_path = f'pair_test_subj/subj_{subj_index}_test'
     if subj_index == '0560':
-        subj_test_model_ckpt = f'models/ckpt_down/{subj_index}/FM_based_classfier_0140.pth'
+        subj_test_model_ckpt = f'models/ckpt_down/{subj_index}/FM_based_classfier_0143.pth'
+        
     elif subj_index == "0565":
         subj_test_model_ckpt = f'models/ckpt_down/{subj_index}/FM_based_classfier_0143.pth'
+        
     elif subj_index == "0583":
         subj_test_model_ckpt = f'models/ckpt_down/{subj_index}/FM_based_classfier_0143.pth'
+        
     elif subj_index == "0558":
         subj_test_model_ckpt = f'models/ckpt_down/{subj_index}/FM_based_classfier_0143.pth'
+        
     elif subj_index == "0571":
         subj_test_model_ckpt = f'models/ckpt_down/{subj_index}/FM_based_classfier_0143.pth'
     else:
@@ -186,18 +193,18 @@ def predict_using_fm_classifier(subj_index, model_index):
     
     model_config = torch.load(subj_test_model_ckpt, map_location=device)
     
-    args['data_config'] = model_config['focal_data_config']
-    args['trainer_config'] = model_config['focal_trainer_config']
-    args['focal_config'] = model_config['focal_config']
+    args.data_config = model_config['focal_data_config']
+    args.trainer_config = model_config['focal_trainer_config']
+    args.focal_config = model_config['focal_config']
+    args.downstream_config = model_config['down_config']
     
-    downargs['downstream_config'] = model_config['downstream_config']
-    
+    downargs.downstream_config = model_config['down_config']    
     
     backbone = DeepSense(args).to(device)
     focal_model = FOCAL(args, backbone).to(device)
     focal_model.load_state_dict(model_config["focal_state_dict"], strict=False)
     
-    downstream_model = SleepStageClassifier(args).to(device)
+    downstream_model = SleepStageClassifier(downargs).to(device)
     downstream_model.load_state_dict(model_config["down_state_dict"], strict=False)
     
 
@@ -207,11 +214,11 @@ def predict_using_fm_classifier(subj_index, model_index):
                                 stage=args.data_config['label_key'])
 
     test_loader = torch.utils.data.DataLoader(test_dataset,
-                                                batch_size=args.trainer_config['batch_size']//4,
+                                                batch_size=128,
                                                 shuffle=False,
                                                 num_workers=2)
     
-    predict, labels = get_predict_label_from_fm_classifier(model, downstream_model, test_loader, device)
+    predict, labels = get_predict_label_from_fm_classifier(focal_model, downstream_model, test_loader, device)
     
     # Calculate metrics
     acc = accuracy_score(labels, predict)
@@ -226,6 +233,8 @@ def predict_using_fm_classifier(subj_index, model_index):
     plt.ylabel('True Labels')
     plt.title('Confusion Matrix')
     plt.show()
+    
+    return acc, f1score
     
     
 def loss_acc_plotting(subj_index, model_index='0140'):
