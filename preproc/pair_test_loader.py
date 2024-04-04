@@ -3,8 +3,8 @@ import random
 import shutil
 import zipfile
 
-zip_file_path = r"C:\Users\user\Downloads\pair_test.zip"
-output_folder = r"C:\Users\user\Downloads\pair_test"
+zip_file_path = None # Path to the zip file
+output_folder = None # Path to the output folder
 
 os.makedirs(output_folder, exist_ok=True)
 

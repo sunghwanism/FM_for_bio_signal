@@ -4,11 +4,6 @@ import torch
 
 
 # Set the root directory
-# root_dir = '/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal'
-# data_dir = "/data8/jungmin/uot_class/MIE1517_DL/FM_for_bio_signal/src/foundation/dataset"
-
-# root_dir = "/NFS/Users/moonsh/FM_biosignal"
-# data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
 
 root_dir = "../../"
 data_dir = "../../"

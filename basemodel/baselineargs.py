@@ -6,8 +6,8 @@ import torch
 
 
 # Set the root directory
-root_dir = "/NFS/Users/moonsh/FM_biosignal"
-data_dir = "/NFS/Users/moonsh/data/mesa/preproc/"
+root_dir = '../'
+data_dir = '../'
 SEED = 42
 ################################################################################
 # General Arguments
