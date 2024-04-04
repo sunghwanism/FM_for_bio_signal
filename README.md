@@ -41,6 +41,7 @@ python ./src/foundation/train.py
 ## Baseline model Training on Apple Watch dataset
 Train using Jupyter Notebook ```basemodel/subj_baseline.ipynb```
 
+## Classifier with Foundation Model to-do
 
 ## Results
 (1) Evaluation Metrics
@@ -66,5 +67,6 @@ Train using Jupyter Notebook ```basemodel/subj_baseline.ipynb```
 
 ## Reference
 [1] Large-scale Training of Foundation Models for Wearable Biosignals
+
 [2] Sleep stage prediction with raw acceleration and photoplethysmography heart rate data derived from a consumer wearable device
 
