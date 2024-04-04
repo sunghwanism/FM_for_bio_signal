@@ -32,5 +32,39 @@ The pre-processing scripts are included in this repo.
 For preprocessing the MESA dataset and Apple Watch dataset, we cited https://github.com/ojwalch/sleep_classifiers/tree/main
 
 
+## Foundation Model pre-training on MESA dataset
+```sh
+python ./src/foundation/train.py
+```
 
+## Baseline model Training on Apple Watch dataset
+Train using Jupyter Notebook ```basemodel/subj_baseline.ipynb```
+
+
+## Results
+(1) Evaluation Metrics
+
+|   | Model |  Accuracy |  F1-Score |
+|:-:|:-----:|:---------:|:---------:|
+| 1 |  Base |   0.804   |   0.705   |
+|   |   FM  | **0.816** |   0.689   |
+| 2 |  Base |   0.621   |   0.317   |
+|   |   FM  | **0.641** |   0.380   |
+| 3 |  Base |   0.784   |   0.400   |
+|   |   FM  | **0.791** | **0.404** |
+| 4 |  Base | **0.736** | **0.595** |
+|   |   FM  |   0.648   |   0.506   |
+| 5 |  Base | **0.812** | **0.692** |
+|   |   FM  |   0.716   |   0.518   |
+
+(2) Confusion Matrix
+
+
+
+
+
+
+## Reference
+[1] Large-scale Training of Foundation Models for Wearable Biosignals
+[2] Sleep stage prediction with raw acceleration and photoplethysmography heart rate data derived from a consumer wearable device
 
