@@ -17,6 +17,7 @@ Our framework has two main strategies:
 ## Environment setup
 create and activate conda environment named ```FMBIO``` with ```python=3.8.18```
 ```sh
+conda create -n FMBIO python=3.8 -y
 conda activate FMBIO
 pip install -r requirements.txt
 ```
@@ -29,7 +30,7 @@ Due to access issue, the MESA dataset [MESA Dataset](https://sleepdata.org/datas
 
 ## Preprocessing
 The pre-processing scripts are included in this repo.
-For preprocessing the MESA dataset and Apple Watch dataset, we cited https://github.com/ojwalch/sleep_classifiers/tree/main
+For preprocessing the MESA dataset and Apple Watch dataset, we cited [GitHub](https://github.com/ojwalch/sleep_classifiers/tree/main)
 
 
 ## Foundation Model pre-training on MESA dataset
@@ -58,7 +59,6 @@ Train using Jupyter Notebook ```basemodel/subj_baseline.ipynb```
 |    |   FM    |   0.716   |   0.518   |
 
 (2) Confusion Matrix
-
 
 
 
