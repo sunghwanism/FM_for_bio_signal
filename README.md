@@ -15,11 +15,11 @@ Our framework has two main strategies:
 
 
 ## Environment setup
-create and activate conda environment named '''FMBIO''' with '''python=3.8.18'''
-'''sh
+create and activate conda environment named ```FMBIO``` with ```python=3.8.18```
+```sh
 conda activate FMBIO
 pip install -r requirements.txt
-'''
+```
 
 ## Dataset
 We used two dataset **MESA** dataset and **Apple Watch** dataset. The description of dataset is below.
